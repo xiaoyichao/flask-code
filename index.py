@@ -110,7 +110,8 @@ password = parse.quote_plus('18810960805Xyc$')
 # 表名
 database = 'user'
 # 地址
-sqlurl = 'rm-2ze40276yr5ikt5xn9o.rwlb.rds.aliyuncs.com'
+# sqlurl = 'rm-2ze40276yr5ikt5xn9o.rwlb.rds.aliyuncs.com'
+sqlurl = "database-1.cfvgtkm8uon9.us-west-2.rds.amazonaws.com"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://%s:%s@%s:3306/%s' % (
     user, password, sqlurl, database)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
