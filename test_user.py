@@ -43,7 +43,7 @@ for k,v in account_dict.items():
             time.sleep(sleep_time)
             
 
-tmp_bots = all_bots - used_bot
+tmp_bots = list(all_bots - used_bot)
 if len(tmp_bots)>0:
     chatbot = random.choice(tmp_bots)
     print("选择了 bot")
@@ -52,7 +52,7 @@ else:
     while i < 5:
         time.sleep(0.5)
         print("开始重试")
-        tmp_bots = all_bots - used_bot
+        tmp_bots = list(all_bots - used_bot)
         i+=1
         if len(tmp_bots)>0:
             chatbot = random.choice(tmp_bots)
@@ -71,6 +71,7 @@ for data in chatbot.ask(
 prompt
 ):
     response = data["message"]
+print(response)
 print("请求chatgpt成功") 
 used_bot.remove(chatbot)
 print("used_bot", used_bot)
