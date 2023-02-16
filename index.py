@@ -18,7 +18,7 @@ account_dict = {'wolhtetjuywvb@eurokool.com': 'abc123456789', 'uvffqudbqob@eurok
 print("账户总数量",len(account_dict))
 tmp_list = sorted(account_dict.items(),key=lambda item:item[1],reverse=True)
  
-tmp_list = tmp_list[:10]
+tmp_list = tmp_list[:5]
 
 
 account_dict = {}
