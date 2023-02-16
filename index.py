@@ -19,6 +19,7 @@ print("账户总数量",len(account_dict))
 account_list = sorted(account_dict.items(),key=lambda item:item[1],reverse=True)
 
 all_bots =set()
+used_bot = set()
 for info in account_list:
     account = info[0]
     password = info[1]
@@ -68,6 +69,19 @@ for info in account_list:
 #     "email": "lahuseman88@outlook.com",
 #     "password": "of75stFg8j"
 #     })
+
+def get_bot(account, password):
+    try_num = 0
+    while try_num<10:
+        try:
+            chatbot = Chatbot(config={
+                "email": account,
+                "password": password,
+                })
+            try_num +=1
+            return chatbot
+        except:
+            print("第%s次尝试创建chatbot"%try_num)
 
 
 app = Flask(__name__)
@@ -672,10 +686,7 @@ def mess():
     if len(tmp_bots)>0:
         account = random.choice(tmp_bots)
         password = account_dict[account]
-        chatbot = Chatbot(config={
-            "email": account,
-            "password": password,
-            })
+        chatbot = get_bot(account, password)
         print("选择了 bot")
     else:
         i = 0
@@ -687,10 +698,7 @@ def mess():
             if len(tmp_bots)>0:
                 account = random.choice(tmp_bots)
                 password = account_dict[account]
-                chatbot = Chatbot(config={
-                    "email": account,
-                    "password": password,
-                    })
+                chatbot = get_bot(account, password)
                 print("重试后，选择了 bot")
 
         errmsg = "太多用户使用，导致账号不足"
