@@ -16,46 +16,51 @@ account_dict = {'wolhtetjuywvb@eurokool.com': 'abc123456789', 'uvffqudbqob@eurok
 # account_dict = {'wolhtetjuywvb@eurokool.com': 'abc123456789', 'uvffqudbqob@eurokool.com': 'abc123456789', 'svakzkwcegq@eurokool.com': 'abc123456789', 'wyabuwztdcct@eurokool.com': 'abc123456789', 'qmqows@eurokool.com': 'abc123456789', 'lahuseman88@outlook.com': 'of75stFg8j', 'hp52477bgmw7027@163.com': 'XnwlHh5VwD', 'px303xgza2591@163.com': 'GMV1x4wtQC',  }
 
 print("账户总数量",len(account_dict))
-tmp_list = sorted(account_dict.items(),key=lambda item:item[1],reverse=True)
- 
-tmp_list = tmp_list[:5]
+account_list = sorted(account_dict.items(),key=lambda item:item[1],reverse=True)
 
-
-account_dict = {}
-for l in tmp_list:
-    account_dict[l[0]] = l[1]
- 
-print("使用的账户数量",len(account_dict))
-
-chat_bot_num = 0
-chatbots = []
 all_bots =set()
-used_bot = set()
+for info in account_list:
+    account = info[0]
+    password = info[1]
+    all_bots.add(account)
+# tmp_list = tmp_list[:]
 
-for k,v in account_dict.items():
-    try_num = 0
-    while try_num<10:
-        try:
-            locals()[f'chatbot_{chat_bot_num}']=Chatbot(config={
-            "email": k,
-            "password": v,
-            })
-            chatbots.append(locals()[f'chatbot_{chat_bot_num}'])
-            all_bots.add(locals()[f'chatbot_{chat_bot_num}'])
-            print("第%s个 chatbot 创建成功 "%chat_bot_num)
-            chat_bot_num +=1
-            try_num +=1
-            sleep_time = random.uniform(0.5,2.0)
-            print("sleep:", sleep_time)
-            time.sleep(sleep_time)
-            break
+
+# account_dict = {}
+# for l in tmp_list:
+#     account_dict[l[0]] = l[1]
+ 
+# print("使用的账户数量",len(account_dict))
+
+# chat_bot_num = 0
+# chatbots = []
+# all_bots =set()
+# used_bot = set()
+
+# for k,v in account_dict.items():
+#     try_num = 0
+#     while try_num<10:
+#         try:
+#             locals()[f'chatbot_{chat_bot_num}']=Chatbot(config={
+#             "email": k,
+#             "password": v,
+#             })
+#             chatbots.append(locals()[f'chatbot_{chat_bot_num}'])
+#             all_bots.add(locals()[f'chatbot_{chat_bot_num}'])
+#             print("第%s个 chatbot 创建成功 "%chat_bot_num)
+#             chat_bot_num +=1
+#             try_num +=1
+#             sleep_time = random.uniform(0.5,2.0)
+#             print("sleep:", sleep_time)
+#             time.sleep(sleep_time)
+#             break
             
-        except :
-            print("第%s个 chatbot 创建失败 "%chat_bot_num)
-            try_num +=1
-            sleep_time = random.uniform(0.5,3.0)
-            print("sleep:", sleep_time)
-            time.sleep(sleep_time)
+#         except :
+#             print("第%s个 chatbot 创建失败 "%chat_bot_num)
+#             try_num +=1
+#             sleep_time = random.uniform(0.5,3.0)
+#             print("sleep:", sleep_time)
+#             time.sleep(sleep_time)
                       
 
 
@@ -665,7 +670,12 @@ def mess():
     print("计算没有使用的bots")
     tmp_bots = list(all_bots - used_bot)
     if len(tmp_bots)>0:
-        chatbot = random.choice(tmp_bots)
+        account = random.choice(tmp_bots)
+        password = account_dict[account]
+        chatbot = Chatbot(config={
+            "email": account,
+            "password": password,
+            })
         print("选择了 bot")
     else:
         i = 0
@@ -675,10 +685,19 @@ def mess():
             tmp_bots = list(all_bots - used_bot)
             i+=1
             if len(tmp_bots)>0:
-                chatbot = random.choice(tmp_bots)
+                account = random.choice(tmp_bots)
+                password = account_dict[account]
+                chatbot = Chatbot(config={
+                    "email": account,
+                    "password": password,
+                    })
                 print("重试后，选择了 bot")
-        chatbot = None
+
+        errmsg = "太多用户使用，导致账号不足"
         print("重试后，没有 bot")
+        return errout(errmsg)
+            
+       
 
     used_bot.add(chatbot)
        
