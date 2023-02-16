@@ -81,7 +81,10 @@ def get_bot(account, password):
             try_num +=1
             return chatbot
         except:
+            try_num +=1
             print("第%s次尝试创建chatbot"%try_num)
+            print(account,password)
+    return
 
 
 app = Flask(__name__)
