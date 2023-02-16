@@ -689,7 +689,18 @@ def mess():
     if len(tmp_bots)>0:
         account = random.choice(tmp_bots)
         password = account_dict[account]
+        
         chatbot = get_bot(account, password)
+        
+        if chatbot is None:
+            print("创建bot失败，尝试其他账户")
+            for i in range(5):
+                account = random.choice(tmp_bots)
+                password = account_dict[account]
+                chatbot = get_bot(account, password)  
+                if chatbot:
+                    break  
+
         print("选择了 bot")
     else:
         i = 0
@@ -706,7 +717,12 @@ def mess():
 
         errmsg = "太多用户使用，导致账号不足"
         print("重试后，没有 bot")
-        return errout(errmsg)
+        res = {
+            "resmsg": errmsg,
+            "num": usernum,
+            "code": 200
+        }
+        return res
             
        
 
