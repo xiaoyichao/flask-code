@@ -202,7 +202,12 @@ def infocheck(text,openid):
             "version": 2,
             "content": text
         }
-        response = requests.post(checkurl, json=payload)
+        
+        payload = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+        headers = {'Content-Type': 'application/json'}
+
+        response = requests.post(checkurl, json=payload, headers=headers)
+
         response_json = response.json()
         print(response_json)
 
