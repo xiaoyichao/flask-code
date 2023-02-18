@@ -12,6 +12,7 @@ def infocheck(text,openid):
             "version": 2,
             "content": text
         }
+        payload = json.dumps(payload)
         response = requests.post(checkurl, json=payload)
         response_json = response.json()
         print(response_json)
