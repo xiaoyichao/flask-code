@@ -195,9 +195,9 @@ def infocheck(text,openid):
         ACCESS_TOKEN=acctoken)
     print("checkurl", checkurl)
     payload = {
-        "openid": openid,
-        "scene": 1,
-        "version": 2,
+        # "openid": openid,
+        # "scene": 1,
+        # "version": 2,
         "content": text
     }
     print("开始请求 infocheck", )
