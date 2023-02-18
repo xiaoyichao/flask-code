@@ -195,10 +195,10 @@ def infocheck(text,openid):
         ACCESS_TOKEN=acctoken)
     print("checkurl", checkurl)
     payload = {
-        # "openid": openid,
-        # "scene": 1,
-        # "version": 2,
-        "content": text
+        "openid": str(openid),
+        "scene": 1,
+        "version": 2,
+        "content": text.encode("utf-8")
     }
     print("开始请求 infocheck", )
     # payload = json.dumps(payload, ensure_ascii=False).encode('utf-8')
