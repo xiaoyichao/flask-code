@@ -204,7 +204,7 @@ def infocheck(text,openid):
     print("payload:", payload)
     print("开始请求 infocheck", )
     # payload = json.dumps(payload, ensure_ascii=False).encode('utf-8')
-    # payload = json.dumps(payload)
+    payload = json.dumps(payload)
     print("payload:", payload)
     headers = {'Content-Type': 'application/json'}
 
