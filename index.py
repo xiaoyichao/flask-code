@@ -193,7 +193,7 @@ def infocheck(text,openid):
 
     checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
         ACCESS_TOKEN=acctoken)
-    # print(checkurl)
+    print("checkurl", checkurl)
     payload = {
         "openid": openid,
         "scene": 1,
