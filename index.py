@@ -321,6 +321,183 @@ def delkey():
 
         return errout('此key不存在')
 
+# 微信内容安全检测
+def infocheck(text,openid):
+    try:
+        acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
+
+        checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
+            ACCESS_TOKEN=acctoken)
+        print(checkurl)
+        payload = {
+            "openid": openid,
+            "scene": 1,
+            "version": 2,
+            "content": text
+        }
+        response = requests.post(checkurl, json=payload)
+        response_json = response.json()
+        print(response_json)
+
+        errcode = response_json.get("errcode", None)
+        result = response_json.get("result", None)
+        if errcode == 0 and result.get("suggest", None) == "pass":
+            print("msg_sec_check 正常")
+            return response
+        else:
+            print("msg_sec_check 异常")
+            keywords = "|".join([detail["keyword"] for detail in response_json["detail"] if "keyword" in detail])
+            raise Exception(
+                "错误： errcode={}, suggest={}, keywords={}".format(errcode, result.get("suggest", None), keywords))
+
+    except:
+        getacctoken()
+        return jsonify('内容包含敏感文字，请重新编辑发送')
+
+def getacctoken():
+    access_token_url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential' \
+                       '&appid={appid}&secret={secret}'.format(appid=APPID, secret=SECRET)
+    access_token_res = requests.get(access_token_url).json()['access_token']
+    atok = Adj.query.filter(Adj.id == 2).first()
+    if atok:
+        atok.adjinfo = access_token_res
+    else:
+        atok = Adj(id = 2,adjinfo=access_token_res)
+        db.session.add(atok)
+    db.session.commit()
+    return access_token_res
+    if access_token_res.json().get('errcode'):
+        raise 'AccessToken()'
+
+# 错误返回
+def errout(err):
+    errr = str(err)
+    res = {
+            # 广告信息
+                "adj": '接口执行错误',
+                "code": 444,
+                "errinfo":errr
+            }
+    return  res
+# api检测
+@app.route('/checkapi', methods=['POST'])
+def checkapi():
+    apikey = request.json.get('apikey')
+    apilist = ApiPoll.query.filter(ApiPoll.statu == False).all()
+
+    try:
+
+        req = requests.post('https://api.openai.com/v1/completions',
+                            json={"prompt": '你好', "max_tokens": 1024, "model": "text-davinci-003-playground", "temperature": 0}, headers={
+                                'content-type': 'application/json', 'Authorization': 'Bearer ' + apikey})
+        if req.status_code == 200:
+            ApiPoll.query.filter(
+                ApiPoll.apikey == apikey).update({'statu': True})
+            db.session.commit()
+            api1 = ApiPoll.query.filter().all()
+            apilist = []
+            for item in api1:
+                api = {
+                    "key": item.apikey,
+                    "keystatu": item.statu,
+                    "usernum": item.callnum,
+                }
+                apilist.append(api)
+
+            print(apilist)
+            res = {
+
+                "apilist": apilist,
+
+                "code": 200
+            }
+            print(res)
+            return res
+
+        else:
+
+            reqdic = json.loads(req.text)
+            errmsg = reqdic['error']['message']
+
+            ApiPoll.query.filter(ApiPoll.apikey == apikey).update(
+                {'checkstatu': False, 'statu': False, 'lastlog': errmsg})
+            db.session.commit()
+
+        return errout(errmsg)
+    except KeyError as e:
+
+        return errout('openai官方请求错误，请稍后重试')
+
+# 增加api
+
+
+@app.route('/editapi', methods=['POST'])
+def editapi():
+    apikey = request.json.get('apikey')
+    api2 = ApiPoll.query.filter(ApiPoll.apikey == apikey)
+    if api2.first():
+        return errout('此key已存在')
+
+    else:
+
+        api1 = ApiPoll(apikey=apikey)
+        db.session.add(api1)
+        db.session.commit()
+        api1 = ApiPoll.query.filter().all()
+        apilist = []
+        for item in api1:
+            api = {
+                "key": item.apikey,
+                "keystatu": item.statu,
+                "usernum": item.callnum,
+            }
+            apilist.append(api)
+
+        print(apilist)
+        res = {
+
+            "apilist": apilist,
+
+            "code": 200
+        }
+        print(res)
+        return res
+
+# 删除api
+
+
+@app.route('/delkey', methods=['POST'])
+def delkey():
+    apikey = request.json.get('apikey')
+    api2 = ApiPoll.query.filter(ApiPoll.apikey == apikey)
+    if api2.first():
+
+        ApiPoll.query.filter(ApiPoll.apikey == apikey).delete()
+        db.session.commit()
+        api1 = ApiPoll.query.filter().all()
+        apilist = []
+        for item in api1:
+            api = {
+                "key": item.apikey,
+                "keystatu": item.statu,
+                "usernum": item.callnum,
+            }
+            apilist.append(api)
+
+        print(apilist)
+        res = {
+
+            "apilist": apilist,
+
+            "code": 200
+        }
+        print(res)
+        return res
+
+    else:
+
+        return errout('此key不存在')
+
 
 # 获取APIKEY信息
 @app.route('/getapilist', methods=['GET'])
@@ -366,7 +543,7 @@ def setinfo():
         setinfo.update({'everynum': daynum, 'sharenum': sharenum, 'videonum': videonum,
                         'sharemax': sharemaxnum, 'videomax': videomaxnum, 'isadj': isadj, 'manavx': manavx})
     else:
-        setadd = BaseConfig(everynum=daynum, sharenum=sharenum, videonum=videonum,
+        setadd = BaseConfig(id=1, everynum=daynum, sharenum=sharenum, videonum=videonum,
                             sharemax=sharemaxnum, videomax=videomaxnum, isadj=isadj, manavx=manavx)
         db.session.add(setadd)
 
@@ -400,30 +577,34 @@ def setinfo():
 # 获取配置信息
 @app.route('/getsetinfo', methods=['GET'])
 def getsetinfo():
-    setinfo = BaseConfig.query.filter().first()
-    daynum = setinfo.everynum
-    sharenum = setinfo.sharenum
-    videonum = setinfo.videonum
-    isadj = setinfo.isadj
-    sharemaxnum = setinfo.sharemax
-    videomaxnum = setinfo.videomax
-    manavx = setinfo.manavx
+    if BaseConfig.query.filter().first():
 
-    print(setinfo)
-    res = {
+        setinfo = BaseConfig.query.filter().first()
+        daynum = setinfo.everynum
+        sharenum = setinfo.sharenum
+        videonum = setinfo.videonum
+        isadj = setinfo.isadj
+        sharemaxnum = setinfo.sharemax
+        videomaxnum = setinfo.videomax
+        manavx = setinfo.manavx
 
-        "daynum": daynum,
-        "sharenum": sharenum,
-        "videonum": videonum,
+        print(setinfo)
+        res = {
 
-        "isadj": isadj,
-        "sharemaxnum": sharemaxnum,
-        "videomaxnum": videomaxnum,
-        "manavx": manavx,
+            "daynum": daynum,
+            "sharenum": sharenum,
+            "videonum": videonum,
 
-        "code": 200
-    }
-    return res
+            "isadj": isadj,
+            "sharemaxnum": sharemaxnum,
+            "videomaxnum": videomaxnum,
+            "manavx": manavx,
+
+            "code": 200
+        }
+        return res
+    else:
+        return errout("请先进行参数配置")
 
 
 # 检测联通
@@ -558,9 +739,9 @@ def addnum():
     baseconfingset = BaseConfig.query.filter().first()
     videonum = baseconfingset.videonum
     videomax = baseconfingset.videomax
+    # sharenum = baseconfingset.videonum  原内容  videonum 改为 sharenum  
     sharenum = baseconfingset.sharenum
     sharemax = baseconfingset.sharemax
-
     type = request.json.get('type')
     openid = request.json.get('openid')
     user1 = User.query.filter(User.openid == openid).first()
@@ -674,124 +855,75 @@ def LOGIN():
         return errout('微信认证连接失败')
 
 
-# 消息处理 chatgpt
-
+# 消息处理
 @app.route('/message', methods=['POST'])
 def mess():
-    print("接收到微信的请求")
     api1 = ApiPoll.query.filter(
         ApiPoll.statu == True, ApiPoll.checkstatu == True).all()
-    api = random.choice(api1)# 基本没用
-    print("随机选择了api")
-    
-    # 随机选择一个没有使用的bot,最多等待5次
-    print("计算没有使用的bots")
-    tmp_bots = list(all_bots - used_bot)
-    if len(tmp_bots)>0:
-        account = random.choice(tmp_bots)
-        password = account_dict[account]
-        
-        chatbot = get_bot(account, password)
-        
-        if chatbot is None:
-            print("创建bot失败，尝试其他账户")
-            for i in range(5):
-                account = random.choice(tmp_bots)
-                password = account_dict[account]
-                chatbot = get_bot(account, password)  
-                if chatbot:
-                    break  
-
-        print("选择了 bot")
-    else:
-        i = 0
-        while i < 5:
-            time.sleep(0.5)
-            print("开始重试")
-            tmp_bots = list(all_bots - used_bot)
-            i+=1
-            if len(tmp_bots)>0:
-                account = random.choice(tmp_bots)
-                password = account_dict[account]
-                chatbot = get_bot(account, password)
-                print("重试后，选择了 bot")
-
-        errmsg = "太多用户使用，导致账号不足"
-        print("重试后，没有 bot")
-        res = {
-            "resmsg": errmsg,
-            "num": usernum,
-            "code": 200
-        }
-        return res
-            
-       
-
-    used_bot.add(chatbot)
-       
-    print("随机选择chatbot, done")
+    api = random.choice(api1)
     msg = request.json.get('msg')
-    maxtoken = request.json.get('maxtoken') - 300
+    maxtoken = request.json.get('maxtoken')
+    
+    if maxtoken > 2500:
+        maxtoken = 2500
+    if maxtoken <= 0:
+        maxtoken = 1024
+    else:
+        maxtoken = maxtoken- 100
     openid = request.json.get('openid')
-    print("准备开始请求chatgpt")
     try:
-        #### Basic example (single result):
-        prompt = msg
-        response = ""
 
-        for data in chatbot.ask(
-        prompt
-        ):
-            response = data["message"]
-        print("请求chatgpt成功") 
-        used_bot.remove(chatbot)
+        a = infocheck(msg,openid)
+        print(a)
 
-        print("chatgpt response", response)
+        try:
+            req = requests.post('https://api.openai.com/v1/completions',
+                                json={"prompt": msg, "max_tokens": maxtoken, "model": "text-davinci-003-playground", "temperature": 0.8}, headers={
+                                    'content-type': 'application/json', 'Authorization': 'Bearer ' + api.apikey})
+            user1 = User.query.filter(User.openid == openid).first()
 
-        # req = requests.post('https://api.openai.com/v1/completions',
-        #                     json={"prompt": msg, "max_tokens": maxtoken, "model": "text-davinci-003", "temperature": 0.8}, headers={
-        #                         'content-type': 'application/json', 'Authorization': 'Bearer ' + api.apikey})
-        user1 = User.query.filter(User.openid == openid).first()
+            if req.status_code == 200:
 
-        if response != "":
+                reqdic = json.loads(req.text)
+                print(reqdic)
 
-            # reqdic = json.loads(req.text)
-            # print(reqdic)
-
-            # answ = reqdic['choices'][0]['text']
-            answ = response
-            ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
-            ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
-                {'callnum': ApiPoll.callnum + 1})
-            usernum = user1.num - 1
-            User.query.filter(User.openid == openid).update({'num': usernum})
-            db.session.add(ask1)
-            db.session.commit()
-
-            res = {
-                "resmsg": answ,
-                "num": usernum,
-                "code": 200
-            }
-            return res
-        else:
-            reqdic = json.loads(response)
-            errmsg = reqdic['error']['message']
-            errcode = reqdic['error']['code']
-            errtype = reqdic['error']['type']
-            print(reqdic)
-            if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
-                api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
-                    'statu': False, 'lastlog': errmsg})
+                answ = reqdic['choices'][0]['text']
+                ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
+                ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
+                    {'callnum': ApiPoll.callnum + 1})
+                usernum = user1.num - 1
+                User.query.filter(User.openid == openid).update({'num': usernum})
+                db.session.add(ask1)
                 db.session.commit()
-                return errout(errmsg)
+
+                res = {
+                    "resmsg": reqdic,
+                    "num": usernum,
+                    "code": 200
+                }
+                return res
             else:
-                return errout(errmsg)
+                reqdic = json.loads(req.text)
+                errmsg = reqdic['error']['message']
+                errcode = reqdic['error']['code']
+                errtype = reqdic['error']['type']
+                print(reqdic)
+                if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
+                    api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
+                        'statu': False, 'lastlog': errmsg})
+                    db.session.commit()
+                    if errmsg:
+                        return errout(errmsg)
+                    else:
+                        return errout(reqdic)
+                else:
+                    return errout(reqdic)
 
-    except KeyError as e:
+        except :
 
-        return errout('openai官方请求错误，请稍后重试')
-
+            return errout('openai官方请求错误，请稍后重试')
+    except:
+        return errout('内容含有敏感字，请重新组织内容再提问')
 
 
 # 获取运营信息
@@ -812,6 +944,5 @@ def userinfo():
     print(res)
     return res
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run( debug=True)
