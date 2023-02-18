@@ -194,6 +194,7 @@ def infocheck(text,openid):
 
         checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
             ACCESS_TOKEN=acctoken)
+           
         print(checkurl)
         payload = {
             "openid": openid,
@@ -780,62 +781,67 @@ def mess():
     openid = request.json.get('openid')
     print("准备开始请求chatgpt")
     try:
-        #### Basic example (single result):
-        prompt = msg
-        response = ""
+        a = infocheck(msg,openid)
+        print(a)
+        try:
+            #### Basic example (single result):
+            prompt = msg
+            response = ""
 
-        for data in chatbot.ask(
-        prompt
-        ):
-            response = data["message"]
-        print("请求chatgpt成功") 
-        used_bot.remove(chatbot)
+            for data in chatbot.ask(
+            prompt
+            ):
+                response = data["message"]
+            print("请求chatgpt成功") 
+            used_bot.remove(chatbot)
 
-        print("chatgpt response", response)
+            print("chatgpt response", response)
 
-        # req = requests.post('https://api.openai.com/v1/completions',
-        #                     json={"prompt": msg, "max_tokens": maxtoken, "model": "text-davinci-003", "temperature": 0.8}, headers={
-        #                         'content-type': 'application/json', 'Authorization': 'Bearer ' + api.apikey})
-        user1 = User.query.filter(User.openid == openid).first()
+            # req = requests.post('https://api.openai.com/v1/completions',
+            #                     json={"prompt": msg, "max_tokens": maxtoken, "model": "text-davinci-003", "temperature": 0.8}, headers={
+            #                         'content-type': 'application/json', 'Authorization': 'Bearer ' + api.apikey})
+            user1 = User.query.filter(User.openid == openid).first()
 
-        if response != "":
+            if response != "":
 
-            # reqdic = json.loads(req.text)
-            # print(reqdic)
+                # reqdic = json.loads(req.text)
+                # print(reqdic)
 
-            # answ = reqdic['choices'][0]['text']
-            answ = response
-            ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
-            ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
-                {'callnum': ApiPoll.callnum + 1})
-            usernum = user1.num - 1
-            User.query.filter(User.openid == openid).update({'num': usernum})
-            db.session.add(ask1)
-            db.session.commit()
-
-            res = {
-                "resmsg": answ,
-                "num": usernum,
-                "code": 200
-            }
-            return res
-        else:
-            reqdic = json.loads(response)
-            errmsg = reqdic['error']['message']
-            errcode = reqdic['error']['code']
-            errtype = reqdic['error']['type']
-            print(reqdic)
-            if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
-                api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
-                    'statu': False, 'lastlog': errmsg})
+                # answ = reqdic['choices'][0]['text']
+                answ = response
+                ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
+                ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
+                    {'callnum': ApiPoll.callnum + 1})
+                usernum = user1.num - 1
+                User.query.filter(User.openid == openid).update({'num': usernum})
+                db.session.add(ask1)
                 db.session.commit()
-                return errout(errmsg)
+
+                res = {
+                    "resmsg": answ,
+                    "num": usernum,
+                    "code": 200
+                }
+                return res
             else:
-                return errout(errmsg)
+                reqdic = json.loads(response)
+                errmsg = reqdic['error']['message']
+                errcode = reqdic['error']['code']
+                errtype = reqdic['error']['type']
+                print(reqdic)
+                if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
+                    api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
+                        'statu': False, 'lastlog': errmsg})
+                    db.session.commit()
+                    return errout(errmsg)
+                else:
+                    return errout(errmsg)
 
-    except KeyError as e:
+        except KeyError as e:
 
-        return errout('openai官方请求错误，请稍后重试')
+            return errout('openai官方请求错误，请稍后重试')
+    except:
+        return errout('内容含有敏感字，请重新组织内容再提问')
 
 
 
