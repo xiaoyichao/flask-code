@@ -209,6 +209,7 @@ def infocheck(text,openid):
         errcode = response_json.get("errcode", None)
         result = response_json.get("result", None)
         if errcode == 0 and result.get("suggest", None) == "pass":
+            print("text", text)
             print("msg_sec_check 正常")
             return response
         else:
@@ -838,7 +839,6 @@ def mess():
                     return errout(errmsg)
 
         except KeyError as e:
-
             return errout('openai官方请求错误，请稍后重试')
     except:
         return errout('内容含有敏感字，请重新组织内容再提问')
