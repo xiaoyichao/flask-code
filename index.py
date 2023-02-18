@@ -187,140 +187,6 @@ class ApiPoll(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
     check_time = db.Column(
         db.DateTime, default=datetime.now, onupdate=datetime.now)
-
-# 错误返回
-
-
-def errout(err):
-    errr = str(err)
-    res = {
-        # 广告信息
-        "adj": '接口执行错误',
-        "code": 444,
-        "errinfo": errr
-    }
-    return res
-# api检测
-
-
-@app.route('/checkapi', methods=['POST'])
-def checkapi():
-    apikey = request.json.get('apikey')
-    apilist = ApiPoll.query.filter(ApiPoll.statu == False).all()
-
-    try:
-
-        req = requests.post('https://api.openai.com/v1/completions',
-                            json={"prompt": '你好', "max_tokens": 1024, "model": "text-davinci-003", "temperature": 0}, headers={
-                                'content-type': 'application/json', 'Authorization': 'Bearer ' + apikey})
-        if req.status_code == 200:
-            ApiPoll.query.filter(
-                ApiPoll.apikey == apikey).update({'statu': True})
-            db.session.commit()
-            api1 = ApiPoll.query.filter().all()
-            apilist = []
-            for item in api1:
-                api = {
-                    "key": item.apikey,
-                    "keystatu": item.statu,
-                    "usernum": item.callnum,
-                }
-                apilist.append(api)
-
-            print(apilist)
-            res = {
-
-                "apilist": apilist,
-
-                "code": 200
-            }
-            print(res)
-            return res
-
-        else:
-
-            reqdic = json.loads(req.text)
-            errmsg = reqdic['error']['message']
-
-            ApiPoll.query.filter(ApiPoll.apikey == apikey).update(
-                {'checkstatu': False, 'statu': False, 'lastlog': errmsg})
-            db.session.commit()
-
-        return errout(errmsg)
-    except KeyError as e:
-
-        return errout('openai官方请求错误，请稍后重试')
-
-# 增加api
-
-
-@app.route('/editapi', methods=['POST'])
-def editapi():
-    apikey = request.json.get('apikey')
-    api2 = ApiPoll.query.filter(ApiPoll.apikey == apikey)
-    if api2.first():
-        return errout('此key已存在')
-
-    else:
-
-        api1 = ApiPoll(apikey=apikey)
-        db.session.add(api1)
-        db.session.commit()
-        api1 = ApiPoll.query.filter().all()
-        apilist = []
-        for item in api1:
-            api = {
-                "key": item.apikey,
-                "keystatu": item.statu,
-                "usernum": item.callnum,
-            }
-            apilist.append(api)
-
-        print(apilist)
-        res = {
-
-            "apilist": apilist,
-
-            "code": 200
-        }
-        print(res)
-        return res
-
-# 删除api
-
-
-@app.route('/delkey', methods=['POST'])
-def delkey():
-    apikey = request.json.get('apikey')
-    api2 = ApiPoll.query.filter(ApiPoll.apikey == apikey)
-    if api2.first():
-
-        ApiPoll.query.filter(ApiPoll.apikey == apikey).delete()
-        db.session.commit()
-        api1 = ApiPoll.query.filter().all()
-        apilist = []
-        for item in api1:
-            api = {
-                "key": item.apikey,
-                "keystatu": item.statu,
-                "usernum": item.callnum,
-            }
-            apilist.append(api)
-
-        print(apilist)
-        res = {
-
-            "apilist": apilist,
-
-            "code": 200
-        }
-        print(res)
-        return res
-
-    else:
-
-        return errout('此key不存在')
-
 # 微信内容安全检测
 def infocheck(text,openid):
     try:
@@ -854,76 +720,123 @@ def LOGIN():
 
         return errout('微信认证连接失败')
 
-
-# 消息处理
+# 消息处理 chatgpt
 @app.route('/message', methods=['POST'])
 def mess():
+    print("接收到微信的请求")
     api1 = ApiPoll.query.filter(
         ApiPoll.statu == True, ApiPoll.checkstatu == True).all()
-    api = random.choice(api1)
-    msg = request.json.get('msg')
-    maxtoken = request.json.get('maxtoken')
+    api = random.choice(api1)# 基本没用
+    print("随机选择了api")
     
-    if maxtoken > 2500:
-        maxtoken = 2500
-    if maxtoken <= 0:
-        maxtoken = 1024
+    # 随机选择一个没有使用的bot,最多等待5次
+    print("计算没有使用的bots")
+    tmp_bots = list(all_bots - used_bot)
+    if len(tmp_bots)>0:
+        account = random.choice(tmp_bots)
+        password = account_dict[account]
+        
+        chatbot = get_bot(account, password)
+        
+        if chatbot is None:
+            print("创建bot失败，尝试其他账户")
+            for i in range(5):
+                account = random.choice(tmp_bots)
+                password = account_dict[account]
+                chatbot = get_bot(account, password)  
+                if chatbot:
+                    break  
+
+        print("选择了 bot")
     else:
-        maxtoken = maxtoken- 100
+        i = 0
+        while i < 5:
+            time.sleep(0.5)
+            print("开始重试")
+            tmp_bots = list(all_bots - used_bot)
+            i+=1
+            if len(tmp_bots)>0:
+                account = random.choice(tmp_bots)
+                password = account_dict[account]
+                chatbot = get_bot(account, password)
+                print("重试后，选择了 bot")
+
+        errmsg = "太多用户使用，导致账号不足"
+        print("重试后，没有 bot")
+        res = {
+            "resmsg": errmsg,
+            "num": usernum,
+            "code": 200
+        }
+        return res
+            
+       
+
+    used_bot.add(chatbot)
+       
+    print("随机选择chatbot, done")
+    msg = request.json.get('msg')
+    maxtoken = request.json.get('maxtoken') - 300
     openid = request.json.get('openid')
+    print("准备开始请求chatgpt")
     try:
+        #### Basic example (single result):
+        prompt = msg
+        response = ""
 
-        a = infocheck(msg,openid)
-        print(a)
+        for data in chatbot.ask(
+        prompt
+        ):
+            response = data["message"]
+        print("请求chatgpt成功") 
+        used_bot.remove(chatbot)
 
-        try:
-            req = requests.post('https://api.openai.com/v1/completions',
-                                json={"prompt": msg, "max_tokens": maxtoken, "model": "text-davinci-003-playground", "temperature": 0.8}, headers={
-                                    'content-type': 'application/json', 'Authorization': 'Bearer ' + api.apikey})
-            user1 = User.query.filter(User.openid == openid).first()
+        print("chatgpt response", response)
 
-            if req.status_code == 200:
+        # req = requests.post('https://api.openai.com/v1/completions',
+        #                     json={"prompt": msg, "max_tokens": maxtoken, "model": "text-davinci-003", "temperature": 0.8}, headers={
+        #                         'content-type': 'application/json', 'Authorization': 'Bearer ' + api.apikey})
+        user1 = User.query.filter(User.openid == openid).first()
 
-                reqdic = json.loads(req.text)
-                print(reqdic)
+        if response != "":
 
-                answ = reqdic['choices'][0]['text']
-                ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
-                ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
-                    {'callnum': ApiPoll.callnum + 1})
-                usernum = user1.num - 1
-                User.query.filter(User.openid == openid).update({'num': usernum})
-                db.session.add(ask1)
+            # reqdic = json.loads(req.text)
+            # print(reqdic)
+
+            # answ = reqdic['choices'][0]['text']
+            answ = response
+            ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
+            ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
+                {'callnum': ApiPoll.callnum + 1})
+            usernum = user1.num - 1
+            User.query.filter(User.openid == openid).update({'num': usernum})
+            db.session.add(ask1)
+            db.session.commit()
+
+            res = {
+                "resmsg": answ,
+                "num": usernum,
+                "code": 200
+            }
+            return res
+        else:
+            reqdic = json.loads(response)
+            errmsg = reqdic['error']['message']
+            errcode = reqdic['error']['code']
+            errtype = reqdic['error']['type']
+            print(reqdic)
+            if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
+                api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
+                    'statu': False, 'lastlog': errmsg})
                 db.session.commit()
-
-                res = {
-                    "resmsg": reqdic,
-                    "num": usernum,
-                    "code": 200
-                }
-                return res
+                return errout(errmsg)
             else:
-                reqdic = json.loads(req.text)
-                errmsg = reqdic['error']['message']
-                errcode = reqdic['error']['code']
-                errtype = reqdic['error']['type']
-                print(reqdic)
-                if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
-                    api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
-                        'statu': False, 'lastlog': errmsg})
-                    db.session.commit()
-                    if errmsg:
-                        return errout(errmsg)
-                    else:
-                        return errout(reqdic)
-                else:
-                    return errout(reqdic)
+                return errout(errmsg)
 
-        except :
+    except KeyError as e:
 
-            return errout('openai官方请求错误，请稍后重试')
-    except:
-        return errout('内容含有敏感字，请重新组织内容再提问')
+        return errout('openai官方请求错误，请稍后重试')
+
 
 
 # 获取运营信息
