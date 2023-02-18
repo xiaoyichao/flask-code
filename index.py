@@ -198,17 +198,16 @@ def infocheck(text,openid):
         "openid": str(openid),
         "scene": 1,
         "version": 2,
-        "content": text.encode("utf-8")
+        "content": text
     }
-    # 
-    print("payload:", payload)
+    # .encode("utf-8")
+    print("字典 payload:", payload)
+    
+    payload = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+    # payload = json.dumps(payload)
+    print("json.dumps payload:", payload)
     print("开始请求 infocheck", )
-    # payload = json.dumps(payload, ensure_ascii=False).encode('utf-8')
-    payload = json.dumps(payload)
-    print("payload:", payload)
-    headers = {'Content-Type': 'application/json'}
-
-    response = requests.post(checkurl, json=payload, headers=headers)
+    response = requests.post(checkurl, json=payload)
     response_json = response.json()
     print("response_json", response_json)
 
