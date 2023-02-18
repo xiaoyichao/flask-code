@@ -193,15 +193,16 @@ def infocheck(text,openid):
 
     checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
         ACCESS_TOKEN=acctoken)
-    print(checkurl)
+    # print(checkurl)
     payload = {
         "openid": openid,
         "scene": 1,
         "version": 2,
         "content": text
     }
-
+    print("开始请求 infocheck", )
     payload = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+    print("payload:", payload)
     headers = {'Content-Type': 'application/json'}
 
     response = requests.post(checkurl, json=payload, headers=headers)
