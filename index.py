@@ -805,7 +805,7 @@ def mess():
     print("准备开始进行 infocheck")
     if infocheck(msg, openid) is False:
         res = {
-            "resmsg": "内容包含敏感文字，请不要问我这些东西。我们要保持积极正向。",
+            "resmsg": "内容包含敏感文字，请不要问我这些东西。我们都是社会主义的好青年，要保持积极正向，共建。",
             "num": usernum,
             "code": 200
         }
