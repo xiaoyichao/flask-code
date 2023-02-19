@@ -197,6 +197,7 @@ def wordcheck():
     try:
 
         stau = infocheck(msg,openid)
+        print("stau", stau)
         if stau:
 
             return jsonify({'code':1})
@@ -796,6 +797,8 @@ def mess():
     msg = request.json.get('msg')
     maxtoken = request.json.get('maxtoken') - 300
     openid = request.json.get('openid')
+    print("准备开始进行 infocheck")
+    # infocheck(msg, openid)
     print("准备开始请求chatgpt")
 
     try:
