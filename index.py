@@ -798,14 +798,16 @@ def mess():
     msg = request.json.get('msg')
     maxtoken = request.json.get('maxtoken') - 300
     openid = request.json.get('openid')
+    user1 = User.query.filter(User.openid == openid).first()
+
     print("准备开始进行 infocheck")
-    
     if infocheck(msg, openid) is False:
         res = {
             "resmsg": "内容包含敏感文字，请重新编辑发送",
             "num": usernum,
             "code": 200
         }
+        print("内容包含敏感文字，请重新编辑发送")
         return res
 
     print("准备开始请求chatgpt")
@@ -827,7 +829,7 @@ def mess():
         # req = requests.post('https://api.openai.com/v1/completions',
         #                     json={"prompt": msg, "max_tokens": maxtoken, "model": "text-davinci-003", "temperature": 0.8}, headers={
         #                         'content-type': 'application/json', 'Authorization': 'Bearer ' + api.apikey})
-        user1 = User.query.filter(User.openid == openid).first()
+
 
         if response != "":
 
