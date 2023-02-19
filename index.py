@@ -856,18 +856,19 @@ def mess():
             }
             return res
         else:
-            reqdic = json.loads(response)
-            errmsg = reqdic['error']['message']
-            errcode = reqdic['error']['code']
-            errtype = reqdic['error']['type']
-            print(reqdic)
-            if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
-                api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
-                    'statu': False, 'lastlog': errmsg})
-                db.session.commit()
-                return errout(errmsg)
-            else:
-                return errout(errmsg)
+            return errout("请求chatgpt数据失败")
+            # reqdic = json.loads(response)
+            # errmsg = reqdic['error']['message']
+            # errcode = reqdic['error']['code']
+            # errtype = reqdic['error']['type']
+            # print(reqdic)
+            # if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
+            #     api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
+            #         'statu': False, 'lastlog': errmsg})
+            #     db.session.commit()
+            #     return errout(errmsg)
+            # else:
+                # return errout(errmsg)
 
     except KeyError as e:
         return errout('openai官方请求错误，请稍后重试')
