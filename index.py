@@ -1,6 +1,6 @@
 
 from datetime import datetime, date
-from flask import Flask, request
+from flask import Flask, request, jsonify 
 import requests
 import json
 from flask_sqlalchemy import SQLAlchemy
