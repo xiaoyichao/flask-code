@@ -216,6 +216,7 @@ def infocheck(text,openid):
 
         data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
         headers = {'Content-Type': 'application/json'}
+        print("data",data)
         res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
         lev = res.json().get("result").get("label")
         print("res.json()", res.json())
