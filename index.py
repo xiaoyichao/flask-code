@@ -217,11 +217,11 @@ def infocheck(text,openid):
 
         data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
         headers = {'Content-Type': 'application/json'}
-        print("data",data)
+        # print("data",data)
         res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
         lev = res.json().get("result").get("label")
-        print("res.json()", res.json())
-        print("lev", lev)
+        # print("res.json()", res.json())
+        # print("lev", lev)
         return True if lev == 100 else False
     except Exception as e:
         getacctoken()
@@ -799,6 +799,8 @@ def mess():
     maxtoken = request.json.get('maxtoken') - 300
     openid = request.json.get('openid')
     user1 = User.query.filter(User.openid == openid).first()
+    usernum = user1.num - 1
+    
 
     print("准备开始进行 infocheck")
     if infocheck(msg, openid) is False:
@@ -841,7 +843,8 @@ def mess():
             ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
             ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
                 {'callnum': ApiPoll.callnum + 1})
-            usernum = user1.num - 1
+            # user1 = User.query.filter(User.openid == openid).first()
+            # usernum = user1.num - 1
             User.query.filter(User.openid == openid).update({'num': usernum})
             db.session.add(ask1)
             db.session.commit()
