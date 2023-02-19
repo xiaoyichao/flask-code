@@ -218,8 +218,8 @@ def infocheck(text,openid):
         headers = {'Content-Type': 'application/json'}
         res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
         lev = res.json().get("result").get("label")
-        print(res.json())
-        print(lev)
+        print("res.json()", res.json())
+        print("lev", lev)
         return True if lev == 100 else False
     except Exception as e:
         getacctoken()
