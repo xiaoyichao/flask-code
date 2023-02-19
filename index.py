@@ -187,43 +187,48 @@ class ApiPoll(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
     check_time = db.Column(
         db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+# 敏感词检测
+@app.route('/wordcheck',methods=['POST'])
+def wordcheck():
+    msg = request.json.get('msg')
+    openid = request.json.get('openid')
+
+    try:
+
+        stau = infocheck(msg,openid)
+        if stau:
+
+            return jsonify({'code':1})
+        else:
+            return jsonify({'code': 0, 'msg': 'err'})
+    except:
+
+        return jsonify({'code':0,'msg':'err'})
+
+
 # 微信内容安全检测
 def infocheck(text,openid):
-    acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
+    try:
+        acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
+        checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
+            ACCESS_TOKEN=acctoken)
 
-    checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
-        ACCESS_TOKEN=acctoken)
-    print("checkurl", checkurl)
-    payload = {
-        "openid": str(openid),
-        "scene": 1,
-        "version": 2,
-        "content": text
-    }
-    # .encode("utf-8")
-    print("字典 payload:", payload)
-    
-    payload = json.dumps(payload, ensure_ascii=False).encode('utf-8')
-    # payload = json.dumps(payload)
-    print("json.dumps payload:", payload)
-    print("开始请求 infocheck", )
-    response = requests.post(checkurl, json=payload)
-    response_json = response.json()
-    print("response_json", response_json)
-
-    errcode = response_json.get("errcode", None)
-    result = response_json.get("result", None)
-    if errcode == 0 and result.get("suggest", None) == "pass":
-        print("msg_sec_check 正常")
-        return response
-    else:
-        print("msg_sec_check 异常")
-        keywords = "|".join([detail["keyword"] for detail in response_json["detail"] if "keyword" in detail])
-        raise Exception(
-            "错误： errcode={}, suggest={}, keywords={}".format(errcode, result.get("suggest", None), keywords))
+        data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
+        headers = {'Content-Type': 'application/json'}
+        res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
+        lev = res.json().get("result").get("label")
+        print(res.json())
+        print(lev)
+        return True if lev == 100 else False
+    except Exception as e:
+        getacctoken()
+        print('重新获取')
+        return jsonify('内容包含敏感文字，请重新编辑发送')
 
 
 def getacctoken():
+    print('getroken')
     access_token_url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential' \
                        '&appid={appid}&secret={secret}'.format(appid=APPID, secret=SECRET)
     access_token_res = requests.get(access_token_url).json()['access_token']
@@ -237,6 +242,14 @@ def getacctoken():
     return access_token_res
     if access_token_res.json().get('errcode'):
         raise 'AccessToken()'
+          
+@app.route('/test',methods=['POST'])
+
+def test():
+  
+    a = infocheck(text,openid)
+    return a
+
 
 # 错误返回
 def errout(err):
@@ -723,6 +736,7 @@ def LOGIN():
 
         return errout('微信认证连接失败')
 
+
 # 消息处理 chatgpt
 @app.route('/message', methods=['POST'])
 def mess():
@@ -782,69 +796,63 @@ def mess():
     maxtoken = request.json.get('maxtoken') - 300
     openid = request.json.get('openid')
     print("准备开始请求chatgpt")
+
     try:
-        a = infocheck(msg,openid)
-        print(a)
-        try:
-            #### Basic example (single result):
-            prompt = msg
-            response = ""
+        #### Basic example (single result):
+        prompt = msg
+        response = ""
 
-            for data in chatbot.ask(
-            prompt
-            ):
-                response = data["message"]
-            print("请求chatgpt成功") 
-            used_bot.remove(chatbot)
+        for data in chatbot.ask(
+        prompt
+        ):
+            response = data["message"]
+        print("请求chatgpt成功") 
+        used_bot.remove(chatbot)
 
-            print("chatgpt response", response)
+        print("chatgpt response", response)
 
-            # req = requests.post('https://api.openai.com/v1/completions',
-            #                     json={"prompt": msg, "max_tokens": maxtoken, "model": "text-davinci-003", "temperature": 0.8}, headers={
-            #                         'content-type': 'application/json', 'Authorization': 'Bearer ' + api.apikey})
-            user1 = User.query.filter(User.openid == openid).first()
+        # req = requests.post('https://api.openai.com/v1/completions',
+        #                     json={"prompt": msg, "max_tokens": maxtoken, "model": "text-davinci-003", "temperature": 0.8}, headers={
+        #                         'content-type': 'application/json', 'Authorization': 'Bearer ' + api.apikey})
+        user1 = User.query.filter(User.openid == openid).first()
 
-            if response != "":
+        if response != "":
 
-                # reqdic = json.loads(req.text)
-                # print(reqdic)
+            # reqdic = json.loads(req.text)
+            # print(reqdic)
 
-                # answ = reqdic['choices'][0]['text']
-                answ = response
-                ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
-                ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
-                    {'callnum': ApiPoll.callnum + 1})
-                usernum = user1.num - 1
-                User.query.filter(User.openid == openid).update({'num': usernum})
-                db.session.add(ask1)
+            # answ = reqdic['choices'][0]['text']
+            answ = response
+            ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
+            ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
+                {'callnum': ApiPoll.callnum + 1})
+            usernum = user1.num - 1
+            User.query.filter(User.openid == openid).update({'num': usernum})
+            db.session.add(ask1)
+            db.session.commit()
+
+            res = {
+                "resmsg": answ,
+                "num": usernum,
+                "code": 200
+            }
+            return res
+        else:
+            reqdic = json.loads(response)
+            errmsg = reqdic['error']['message']
+            errcode = reqdic['error']['code']
+            errtype = reqdic['error']['type']
+            print(reqdic)
+            if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
+                api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
+                    'statu': False, 'lastlog': errmsg})
                 db.session.commit()
-
-                res = {
-                    "resmsg": answ,
-                    "num": usernum,
-                    "code": 200
-                }
-                return res
+                return errout(errmsg)
             else:
-                reqdic = json.loads(response)
-                errmsg = reqdic['error']['message']
-                errcode = reqdic['error']['code']
-                errtype = reqdic['error']['type']
-                print(reqdic)
-                if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
-                    api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
-                        'statu': False, 'lastlog': errmsg})
-                    db.session.commit()
-                    return errout(errmsg)
-                else:
-                    return errout(errmsg)
+                return errout(errmsg)
 
-        except KeyError as e:
-            return errout('openai官方请求错误，请稍后重试')
-    except:
-        return errout('内容含有敏感字，请重新组织内容再提问')
-
-
+    except KeyError as e:
+        return errout('openai官方请求错误，请稍后重试')
 
 # 获取运营信息
 @app.route('/userinfo', methods=['GET'])
