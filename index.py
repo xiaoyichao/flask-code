@@ -226,7 +226,8 @@ def infocheck(text,openid):
     except Exception as e:
         getacctoken()
         print('重新获取')
-        return jsonify('内容包含敏感文字，请重新编辑发送')
+        # return jsonify('内容包含敏感文字，请重新编辑发送')
+        return False
 
 
 def getacctoken():
@@ -798,7 +799,15 @@ def mess():
     maxtoken = request.json.get('maxtoken') - 300
     openid = request.json.get('openid')
     print("准备开始进行 infocheck")
-    # infocheck(msg, openid)
+    
+    if infocheck(msg, openid) is False:
+        res = {
+            "resmsg": "内容包含敏感文字，请重新编辑发送",
+            "num": usernum,
+            "code": 200
+        }
+        return res
+
     print("准备开始请求chatgpt")
 
     try:
