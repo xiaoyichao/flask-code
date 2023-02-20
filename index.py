@@ -20,41 +20,42 @@ end_time = time.time()
 
 app = Flask(__name__)
 
-# def generate_text():
-#     """生成文本的生成器函数"""
-#     # for i in range(10):
-#     #     yield f"这是第{i}行文本\n"
-#     msg = "你是谁"
-#     prev_text = ""
-#     for data in chatbot.ask(
-#         msg,
-#     ):
-#         # response = data["message"]
-#         message = data["message"][len(prev_text) :]
-#         # print(message, end="", flush=True)
-#         yield message
-#         prev_text = data["message"]
-#         # print("\n")
-        
-        
-# @app.route('/')
-# def stream_text():
-#     """流式传输文本的视图函数"""
-#     return Response(generate_text(), mimetype='text/plain', content_type='text/event-stream')
-
-
-from flask import Flask, Response, request
-
-app = Flask(__name__)
-
 def generate_text():
-    msg = request.form.get('message')
+    """生成文本的生成器函数"""
+    # for i in range(10):
+    #     yield f"这是第{i}行文本\n"
+    msg = request.form.get('msg')
+    # msg = "你是谁"
     prev_text = ""
-    for data in chatbot.ask(msg):
-        message = data["message"][len(prev_text):]
+    for data in chatbot.ask(
+        msg,
+    ):
+        # response = data["message"]
+        message = data["message"][len(prev_text) :]
+        # print(message, end="", flush=True)
         yield message
         prev_text = data["message"]
-
-@app.route('/', methods=['POST'])
+        # print("\n")
+        
+        
+@app.route('/')
 def stream_text():
+    """流式传输文本的视图函数"""
     return Response(generate_text(), mimetype='text/plain', content_type='text/event-stream')
+
+
+# from flask import Flask, Response, request
+
+# app = Flask(__name__)
+
+# def generate_text():
+#     msg = request.form.get('message')
+#     prev_text = ""
+#     for data in chatbot.ask(msg):
+#         message = data["message"][len(prev_text):]
+#         yield message
+#         prev_text = data["message"]
+
+# @app.route('/', methods=['POST'])
+# def stream_text():
+#     return Response(generate_text(), mimetype='text/plain', content_type='text/event-stream')
