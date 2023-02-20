@@ -1027,8 +1027,9 @@ def userinfo():
     print(res)
     return res
 
-def generate_text_test(msg,maxtoken,openid):
+def generate_text_test(msg,maxtoken,openid,chatbot):
     """生成文本的生成器函数"""
+
     prev_text = ""
     for data in chatbot.ask(msg):
         message = data["message"][len(prev_text):]
@@ -1046,7 +1047,15 @@ def message_test():
         maxtoken = request.json.get('maxtoken') - 300
         openid = request.json.get('openid')
         print(timr.time(),"开始请求")
-        return Response(generate_text_test(msg,maxtoken,openid), mimetype='text/plain', content_type='text/event-stream')
+        begin_time = time.time()
+        print("开始创建bot")
+        chatbot = Chatbot(config={
+            "email": "wolhtetjuywvb@eurokool.com",
+            "password": "abc123456789"
+            })
+        print("创建bot成功")
+        end_time = time.time()
+        return Response(generate_text_test(msg,maxtoken,openid,chatbot), mimetype='text/plain', content_type='text/event-stream')
     else:
         return """
         <form action="/" method="POST">
