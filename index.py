@@ -1026,5 +1026,29 @@ def userinfo():
     print(res)
     return res
 
+def generate_text_test(msg):
+    """生成文本的生成器函数"""
+    prev_text = ""
+    for data in chatbot.ask(msg):
+        message = data["message"][len(prev_text):]
+        yield message
+        prev_text = data["message"]
+
+@app.route('/message_test', methods=['GET', 'POST'])
+def stream_text():
+    """流式传输文本的视图函数"""
+    if request.method == 'POST':
+        # msg = request.form['msg'] 两个都可以
+        msg = request.json.get('msg')
+        return Response(generate_text(msg), mimetype='text/plain', content_type='text/event-stream')
+    else:
+        return """
+        <form action="/" method="POST">
+          <input type="text" name="message">
+          <button type="submit">发送</button>
+        </form>
+        """
+
+
 # if __name__ == '__main__':
 #     app.run( debug=False)
