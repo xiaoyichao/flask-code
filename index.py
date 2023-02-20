@@ -87,7 +87,7 @@ def stream_text():
           <button type="submit">发送</button>
         </form>
         """
-```
+# ```
 
-在这个示例中，`stream_text()` 函数检查请求的方法是否为 `POST`，如果是，则从表单中获取消息并将其传递给 `generate_text()` 函数。如果请求的方法为 `GET`，则返回一个带有表单的 HTML 页面。注意，在 `generate_text()` 函数中，将 `msg` 参数传递给 `chatbot.ask()` 方法，以便使用用户输入的消息进行对话。
+# 在这个示例中，`stream_text()` 函数检查请求的方法是否为 `POST`，如果是，则从表单中获取消息并将其传递给 `generate_text()` 函数。如果请求的方法为 `GET`，则返回一个带有表单的 HTML 页面。注意，在 `generate_text()` 函数中，将 `msg` 参数传递给 `chatbot.ask()` 方法，以便使用用户输入的消息进行对话。
 
