@@ -958,7 +958,7 @@ def generate_text(msg,maxtoken,openid):
         prev_text = ""
         for data in chatbot.ask(msg):
             message = data["message"][len(prev_text):]
-            print("message", message)
+            
             yield message
             prev_text = data["message"]
 
@@ -1032,8 +1032,10 @@ def generate_text_test(msg,maxtoken,openid):
     prev_text = ""
     for data in chatbot.ask(msg):
         message = data["message"][len(prev_text):]
+        print("message", timr.time(), message)
         yield message
         prev_text = data["message"]
+    print(timr.time(),"结束请求")
 
 @app.route('/message_test', methods=['GET', 'POST'])
 def message_test():
@@ -1043,7 +1045,8 @@ def message_test():
         msg = request.json.get('msg')
         maxtoken = request.json.get('maxtoken') - 300
         openid = request.json.get('openid')
-        return Response(generate_text(msg,maxtoken,openid), mimetype='text/plain', content_type='text/event-stream')
+        print(timr.time(),"开始请求")
+        return Response(generate_text_test(msg,maxtoken,openid), mimetype='text/plain', content_type='text/event-stream')
     else:
         return """
         <form action="/" method="POST">
