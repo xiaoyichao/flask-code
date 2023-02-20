@@ -35,7 +35,7 @@ def generate_text():
         # print("\n")
         
         
-@app.route('/',methods=['POST'])
+@app.route('/',methods=['POST','GET'])
 def stream_text():
     """流式传输文本的视图函数"""
     return Response(generate_text(), mimetype='text/plain', content_type='text/event-stream')
