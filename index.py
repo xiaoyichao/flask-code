@@ -1031,7 +1031,7 @@ def generate_text_test(msg,maxtoken,openid):
     prev_text = ""
     for data in chatbot.ask(msg):
         message = data["message"][len(prev_text):]
-        print(message)
+        print("message")
         yield message
         prev_text = data["message"]
 
