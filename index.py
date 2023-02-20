@@ -1033,10 +1033,10 @@ def generate_text_test(msg,maxtoken,openid,chatbot):
     prev_text = ""
     for data in chatbot.ask(msg):
         message = data["message"][len(prev_text):]
-        print("message", timr.time(), message)
+        print("message", time.time(), message)
         yield message
         prev_text = data["message"]
-    print(timr.time(),"结束请求")
+    print(time.time(),"结束请求")
 
 @app.route('/message_test', methods=['GET', 'POST'])
 def message_test():
@@ -1046,7 +1046,7 @@ def message_test():
         msg = request.json.get('msg')
         maxtoken = request.json.get('maxtoken') - 300
         openid = request.json.get('openid')
-        print(timr.time(),"开始请求")
+        print(time.time(),"开始请求")
         begin_time = time.time()
         print("开始创建bot")
         chatbot = Chatbot(config={
