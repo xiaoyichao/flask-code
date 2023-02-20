@@ -1050,8 +1050,8 @@ def message_test():
         begin_time = time.time()
         print("开始创建bot")
         chatbot = Chatbot(config={
-            "email": "wolhtetjuywvb@eurokool.com",
-            "password": "abc123456789"
+            "email": "lahuseman88@outlook.com",
+            "password": "of75stFg8j"
             })
         print("创建bot成功")
         end_time = time.time()
