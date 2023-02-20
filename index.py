@@ -217,7 +217,7 @@ def infocheck(text,openid):
 
         data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
         headers = {'Content-Type': 'application/json'}
-        # print("data",data)
+        print("data",data)
         res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
         lev = res.json().get("result").get("label")
         print("res.json()", res.json())
@@ -802,15 +802,15 @@ def mess():
     usernum = user1.num - 1
     
 
-    print("准备开始进行 infocheck")
-    if infocheck(msg, openid) is False:
-        res = {
-            "resmsg": "内容包含敏感文字，我们都是社会主义的好公民，要保持积极正向，共建美好祖国。",
-            "num": usernum,
-            "code": 200
-        }
-        print("内容包含敏感文字，请重新编辑发送")
-        return res
+    # print("准备开始进行 infocheck")
+    # if infocheck(msg, openid) is False:
+    #     res = {
+    #         "resmsg": "内容包含敏感文字，我们都是社会主义的好公民，要保持积极正向，共建美好祖国。",
+    #         "num": usernum,
+    #         "code": 200
+    #     }
+    #     print("内容包含敏感文字，请重新编辑发送")
+    #     return res
 
     print("准备开始请求chatgpt")
 
