@@ -44,7 +44,7 @@ begin_time = time.time()
 # print("222", end_time-begin_time)
 
 @app.route("/message", methods=["POST"])
-def streaming_file(params):
+def streaming_file():
     """
     流式发送文件
     @return:
