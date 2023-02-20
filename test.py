@@ -1,16 +1,15 @@
-import json
-text = "你好"
-a = text.encode("utf-8")
-print(a)
+from revChatGPT.V2 import Chatbot
 
-payload = {
-        "scene": 1,
-        "version": 2,
-        "content": a
-    }
-    # .encode("utf-8")
-print("字典 payload:", payload)
+# config={
+#     "email": "lahuseman88@outlook.com",
+#     "password": "of75stFg8j"
+    # }
+async def main():
+    chatbot = Chatbot(email="ahuseman88@outlook.com", password="of75stFg8j")
+    async for line in chatbot.ask("你是谁"):
+        print(line["choices"][0]["text"].replace("<|im_end|>", ""), end="", flush = True)
+    print()
 
-payload = json.dumps(payload)
-print("json payload:", payload)
-
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
