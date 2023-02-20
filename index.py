@@ -991,7 +991,7 @@ def generate_text(msg,maxtoken,openid):
 
 
 @app.route('/message', methods=['GET', 'POST'])
-def stream_text():
+def message():
     """流式传输文本的视图函数"""
     if request.method == 'POST':
         # msg = request.form['msg']
@@ -1035,7 +1035,7 @@ def generate_text_test(msg):
         prev_text = data["message"]
 
 @app.route('/message_test', methods=['GET', 'POST'])
-def stream_text():
+def message_test():
     """流式传输文本的视图函数"""
     if request.method == 'POST':
         # msg = request.form['msg'] 两个都可以
