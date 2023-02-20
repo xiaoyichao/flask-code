@@ -32,6 +32,7 @@ def generate_text():
         # response = data["message"]
         message = data["message"][len(prev_text) :]
         print(message, end="", flush=True)
+        print("\n")
         yield message
         
 
