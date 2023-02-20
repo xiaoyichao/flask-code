@@ -9,7 +9,7 @@ Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查�
 import os 
 import sys
 import time
-from flask import Response, Flask
+from flask import Response,request, Flask
 from revChatGPT.V1 import Chatbot
 # from revChatGPT.V2 import Chatbot
 
