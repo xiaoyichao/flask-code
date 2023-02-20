@@ -34,7 +34,8 @@ def generate_text(msg):
 def stream_text():
     """流式传输文本的视图函数"""
     if request.method == 'POST':
-        msg = request.form['msg']
+        # msg = request.form['msg'] 两个都可以
+        msg = request.json.get('msg')
         return Response(generate_text(msg), mimetype='text/plain', content_type='text/event-stream')
     else:
         return """
