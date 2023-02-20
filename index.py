@@ -120,7 +120,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 
 
-
 # 数据表
 class BaseConfig(db.Model):
     # 基础配置项
