@@ -31,9 +31,11 @@ def generate_text():
     ):
         # response = data["message"]
         message = data["message"][len(prev_text) :]
-        print(message, end="", flush=True)
-        print("\n")
+        # print(message, end="", flush=True)
         yield message
+        prev_text = data["message"]
+        # print("\n")
+        
         
 
 @app.route('/')
