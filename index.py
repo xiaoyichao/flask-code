@@ -1031,7 +1031,7 @@ def generate_text_test(msg,maxtoken,openid):
     prev_text = ""
     for data in chatbot.ask(msg):
         message = data["message"][len(prev_text):]
-        print("message")
+        print("message", message)
         yield message
         prev_text = data["message"]
 
@@ -1041,6 +1041,8 @@ def message_test():
     if request.method == 'POST':
         # msg = request.form['msg'] 两个都可以
         msg = request.json.get('msg')
+        maxtoken = request.json.get('maxtoken') - 300
+        openid = request.json.get('openid')
         return Response(generate_text(msg,maxtoken,openid), mimetype='text/plain', content_type='text/event-stream')
     else:
         return """
