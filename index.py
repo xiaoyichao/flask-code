@@ -38,7 +38,7 @@ def generate_text():
 @app.route('/',methods=['POST'])
 def stream_text():
     """流式传输文本的视图函数"""
-    return Response(generate_text(request), mimetype='text/plain', content_type='text/event-stream')
+    return Response(generate_text(), mimetype='text/plain', content_type='text/event-stream')
 
 # 怎么实现传入msg这个函数
 
