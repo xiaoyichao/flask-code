@@ -224,7 +224,7 @@ def infocheck(text,openid):
     lev = res.json().get("result").get("label")
     print("res.json()", res.json())
     print("lev", lev)
-    return True if lev == 100 else False
+    return 1 if lev == 100 else 0
     # except Exception as e:
     #     getacctoken()
     #     print('重新获取')
