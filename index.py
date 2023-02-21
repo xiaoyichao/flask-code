@@ -210,24 +210,24 @@ def wordcheck():
 
 # 微信内容安全检测
 def infocheck(text,openid):
-    try:
-        acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
-        checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
-            ACCESS_TOKEN=acctoken)
+    # try:
+    acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
+    checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
+        ACCESS_TOKEN=acctoken)
 
-        data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
-        headers = {'Content-Type': 'application/json'}
-        # print("data",data)
-        res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
-        lev = res.json().get("result").get("label")
-        # print("res.json()", res.json())
-        # print("lev", lev)
-        return True if lev == 100 else False
-    except Exception as e:
-        getacctoken()
-        print('重新获取')
-        # return jsonify('内容包含敏感文字，请重新编辑发送')
-        return False
+    data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
+    headers = {'Content-Type': 'application/json'}
+    print("data",data)
+    res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
+    lev = res.json().get("result").get("label")
+    print("res.json()", res.json())
+    print("lev", lev)
+    return True if lev == 100 else False
+    # except Exception as e:
+    #     getacctoken()
+    #     print('重新获取')
+    #     # return jsonify('内容包含敏感文字，请重新编辑发送')
+    #     return False
 
 
 def getacctoken():
