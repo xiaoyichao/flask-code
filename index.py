@@ -820,14 +820,14 @@ def mess():
     
 
     print("准备开始进行 infocheck")
-    if infocheck(msg, openid) is False:
-        res = {
-            "resmsg": "内容包含敏感文字，我们都是社会主义的好公民，要保持积极正向，共建美好祖国。",
-            "num": usernum,
-            "code": 200
-        }
-        print("内容包含敏感文字，请重新编辑发送")
-        return res
+    # if infocheck(msg, openid) is False:
+    #     res = {
+    #         "resmsg": "内容包含敏感文字，我们都是社会主义的好公民，要保持积极正向，共建美好祖国。",
+    #         "num": usernum,
+    #         "code": 200
+    #     }
+    #     print("内容包含敏感文字，请重新编辑发送")
+    #     return res
 
     print("准备开始请求chatgpt")
 
