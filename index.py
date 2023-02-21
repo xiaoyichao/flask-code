@@ -839,17 +839,9 @@ def mess():
 
         print("chatgpt response", response)
 
-        # req = requests.post('https://api.openai.com/v1/completions',
-        #                     json={"prompt": msg, "max_tokens": maxtoken, "model": "text-davinci-003", "temperature": 0.8}, headers={
-        #                         'content-type': 'application/json', 'Authorization': 'Bearer ' + api.apikey})
-
 
         if response != "":
 
-            # reqdic = json.loads(req.text)
-            # print(reqdic)
-
-            # answ = reqdic['choices'][0]['text']
             answ = response
             ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
             ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
@@ -868,18 +860,7 @@ def mess():
             return res
         else:
             return errout("请求chatgpt数据失败")
-            # reqdic = json.loads(response)
-            # errmsg = reqdic['error']['message']
-            # errcode = reqdic['error']['code']
-            # errtype = reqdic['error']['type']
-            # print(reqdic)
-            # if errcode == 'invalid_api_key' or errtype == "insufficient_quota":
-            #     api = ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update({
-            #         'statu': False, 'lastlog': errmsg})
-            #     db.session.commit()
-            #     return errout(errmsg)
-            # else:
-                # return errout(errmsg)
+
 
     except KeyError as e:
         return errout('openai官方请求错误，请稍后重试')
