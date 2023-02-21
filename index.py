@@ -747,7 +747,13 @@ def mess():
     api1 = ApiPoll.query.filter(
         ApiPoll.statu == True, ApiPoll.checkstatu == True).all()
     api = random.choice(api1)# 基本没用
-    usernum = user1.num
+
+    msg = request.json.get('msg')
+    maxtoken = request.json.get('maxtoken') - 300
+    openid = request.json.get('openid')
+    user1 = User.query.filter(User.openid == openid).first()
+    usernum = user1.num - 1
+
     print("随机选择了api")
     
     # 随机选择一个没有使用的bot,最多等待5次
@@ -771,7 +777,7 @@ def mess():
             print("chatgpt的官网登录不上了，请稍后重试")
             res = {
                 "resmsg": errmsg,
-                "num": usernum,
+                "num": usernum+1,
                 "code": 200
             }
             return res
@@ -795,7 +801,7 @@ def mess():
         print("重试后，没有 bot")
         res = {
             "resmsg": errmsg,
-            "num": usernum,
+            "num": usernum+1,
             "code": 200
         }
         return res
@@ -805,11 +811,6 @@ def mess():
     used_bot.add(chatbot)
        
     print("随机选择chatbot, done")
-    msg = request.json.get('msg')
-    maxtoken = request.json.get('maxtoken') - 300
-    openid = request.json.get('openid')
-    user1 = User.query.filter(User.openid == openid).first()
-    usernum = user1.num - 1
     
 
     print("准备开始进行 infocheck")
