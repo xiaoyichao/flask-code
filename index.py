@@ -747,6 +747,7 @@ def mess():
     api1 = ApiPoll.query.filter(
         ApiPoll.statu == True, ApiPoll.checkstatu == True).all()
     api = random.choice(api1)# 基本没用
+    usernum = user1.num
     print("随机选择了api")
     
     # 随机选择一个没有使用的bot,最多等待5次
