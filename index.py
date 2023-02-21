@@ -218,6 +218,7 @@ def infocheck(text,openid):
 
         text = text.replace("\n", "")
         text = text.replace("\"", "")
+        text = text.replace("\'", "")
 
         data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
         headers = {'Content-Type': 'application/json'}
