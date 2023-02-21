@@ -249,7 +249,8 @@ def getacctoken():
 @app.route('/test',methods=['POST'])
 
 def test():
-  
+    text = request.json.get('msg')
+    openid = request.json.get('openid')
     a = infocheck(text,openid)
     return a
 
