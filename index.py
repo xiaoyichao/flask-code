@@ -210,39 +210,33 @@ def wordcheck():
 
 # 微信内容安全检测
 def infocheck(text,openid):
-    # try:
-    
-    acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
-    print("acctoken", acctoken)
-    checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
-        ACCESS_TOKEN=acctoken)
+    try:
+        acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
+        print("acctoken", acctoken)
+        checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
+            ACCESS_TOKEN=acctoken)
 
-    text = '2023-02-21 12:52:13 c6d5828d-8040-4e92-86af-ad45f507f6cf [ERROR] Exception on /test [POST]\
-        Traceback (most recent call last):\
-        File "/code/flask/app.py", line 2525, in wsgi_app\
-            response = self.full_dispatch_request()\
-        File "/code/flask/app.py", line 1823, in full_dispatch_request\
-            return self.finalize_request(rv)\
-        File "/code/flask/app.py", line 1842, in finalize_request\
-            response = self.make_response(rv)\
-        File "/code/flask/app.py", line 2170, in make_response\
-            raise TypeError(\
-        TypeError: The view function did not return a valid response. The return type must be a string, dict, list, tuple with headers or status, Response instance, or WSGI callable, but it was a int.FC Invoke End RequestId: c6d5828d-8040-4e92-86af-ad45f507f6cf\
-        这个报错什么意思？'
+        text = text.replace("\n", "")
+        text = text.replace("\"", "")
 
-    data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
-    headers = {'Content-Type': 'application/json'}
-    print("data",data)
-    res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
-    lev = res.json().get("result").get("label")
-    print("res.json()", res.json())
-    print("lev", lev)
-    return 1 if lev == 100 else 0
-    # except Exception as e:
-    #     getacctoken()
-    #     print('重新获取')
-    #     # return jsonify('内容包含敏感文字，请重新编辑发送')
-    #     return False
+        data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
+        headers = {'Content-Type': 'application/json'}
+        # print("data",data)
+        res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
+        lev = res.json().get("result").get("label")
+        suggest = res.json().get("result").get("suggest")
+        print("res.json()", res.json())
+        print("lev", lev)
+        print("suggest", suggest)
+        if suggest == "review" or suggest == "pass":
+            return True
+        else:
+            return False
+    except Exception as e:
+        getacctoken()
+        print('重新获取')
+        # return jsonify('内容包含敏感文字，请重新编辑发送')
+        return False
 
 
 def getacctoken():
@@ -268,7 +262,7 @@ def test():
     openid = request.json.get('openid')
     a = infocheck(text,openid)
     print("a ", a )
-    return a
+    return str(a)
 
 
 # 错误返回
@@ -820,14 +814,14 @@ def mess():
     
 
     print("准备开始进行 infocheck")
-    # if infocheck(msg, openid) is False:
-    #     res = {
-    #         "resmsg": "内容包含敏感文字，我们都是社会主义的好公民，要保持积极正向，共建美好祖国。",
-    #         "num": usernum,
-    #         "code": 200
-    #     }
-    #     print("内容包含敏感文字，请重新编辑发送")
-    #     return res
+    if infocheck(msg, openid) is False:
+        res = {
+            "resmsg": "内容包含敏感文字，我们都是社会主义的好公民，要保持积极正向，共建美好祖国。",
+            "num": usernum,
+            "code": 200
+        }
+        print("内容包含敏感文字，请重新编辑发送")
+        return res
 
     print("准备开始请求chatgpt")
 
