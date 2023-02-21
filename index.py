@@ -72,7 +72,7 @@ for info in account_list:
 
 def get_bot(account, password):
     try_num = 0
-    while try_num<10:
+    while try_num<3:
         try:
             chatbot = Chatbot(config={
                 "email": account,
@@ -84,7 +84,7 @@ def get_bot(account, password):
             try_num +=1
             print("第%s次尝试创建chatbot"%try_num)
             print(account,password)
-    return
+    return None
 
 
 app = Flask(__name__)
@@ -212,26 +212,17 @@ def wordcheck():
 def infocheck(text,openid):
     try:
         acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
-        print("acctoken", acctoken)
         checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
             ACCESS_TOKEN=acctoken)
 
-        text = text.replace("\n", "")
-        text = text.replace("\"", "")
-        text = text.replace("\'", "")
         data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
         headers = {'Content-Type': 'application/json'}
         # print("data",data)
         res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
         lev = res.json().get("result").get("label")
-        suggest = res.json().get("result").get("suggest")
-        print("res.json()", res.json())
-        print("lev", lev)
-        print("suggest", suggest)
-        if suggest == "review" or suggest == "pass":
-            return True
-        else:
-            return False
+        # print("res.json()", res.json())
+        # print("lev", lev)
+        return True if lev == 100 else False
     except Exception as e:
         getacctoken()
         print('重新获取')
@@ -240,7 +231,7 @@ def infocheck(text,openid):
 
 
 def getacctoken():
-    print('get_token')
+    print('getroken')
     access_token_url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential' \
                        '&appid={appid}&secret={secret}'.format(appid=APPID, secret=SECRET)
     access_token_res = requests.get(access_token_url).json()['access_token']
@@ -258,11 +249,9 @@ def getacctoken():
 @app.route('/test',methods=['POST'])
 
 def test():
-    text = request.json.get('msg')
-    openid = request.json.get('openid')
+  
     a = infocheck(text,openid)
-    print("a ", a )
-    return str(a)
+    return a
 
 
 # 错误返回
@@ -771,12 +760,21 @@ def mess():
         
         if chatbot is None:
             print("创建bot失败，尝试其他账户")
-            for i in range(5):
+            for i in range(3):
                 account = random.choice(tmp_bots)
                 password = account_dict[account]
                 chatbot = get_bot(account, password)  
-                if chatbot:
-                    break  
+                if chatbot is not None:
+                    break
+            errmsg = "chatgpt的官网登录不上了，请稍后重试"
+            print("chatgpt的官网登录不上了，请稍后重试")
+            res = {
+                "resmsg": errmsg,
+                "num": usernum,
+                "code": 200
+            }
+            return res
+              
 
         print("选择了 bot")
     else:
