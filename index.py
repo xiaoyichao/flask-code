@@ -212,17 +212,26 @@ def wordcheck():
 def infocheck(text,openid):
     try:
         acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
+        print("acctoken", acctoken)
         checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
             ACCESS_TOKEN=acctoken)
 
+        text = text.replace("\n", "")
+        text = text.replace("\"", "")
+        text = text.replace("\'", "")
         data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
         headers = {'Content-Type': 'application/json'}
         # print("data",data)
         res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
         lev = res.json().get("result").get("label")
-        # print("res.json()", res.json())
-        # print("lev", lev)
-        return True if lev == 100 else False
+        suggest = res.json().get("result").get("suggest")
+        print("res.json()", res.json())
+        print("lev", lev)
+        print("suggest", suggest)
+        if suggest == "review" or suggest == "pass":
+            return True
+        else:
+            return False
     except Exception as e:
         getacctoken()
         print('重新获取')
@@ -231,7 +240,7 @@ def infocheck(text,openid):
 
 
 def getacctoken():
-    print('getroken')
+    print('get_token')
     access_token_url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential' \
                        '&appid={appid}&secret={secret}'.format(appid=APPID, secret=SECRET)
     access_token_res = requests.get(access_token_url).json()['access_token']
@@ -249,9 +258,11 @@ def getacctoken():
 @app.route('/test',methods=['POST'])
 
 def test():
-  
+    text = request.json.get('msg')
+    openid = request.json.get('openid')
     a = infocheck(text,openid)
-    return a
+    print("a ", a )
+    return str(a)
 
 
 # 错误返回
