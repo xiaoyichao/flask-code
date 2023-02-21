@@ -217,6 +217,19 @@ def infocheck(text,openid):
     checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
         ACCESS_TOKEN=acctoken)
 
+    text = '2023-02-21 12:52:13 c6d5828d-8040-4e92-86af-ad45f507f6cf [ERROR] Exception on /test [POST]\
+        Traceback (most recent call last):\
+        File "/code/flask/app.py", line 2525, in wsgi_app\
+            response = self.full_dispatch_request()\
+        File "/code/flask/app.py", line 1823, in full_dispatch_request\
+            return self.finalize_request(rv)\
+        File "/code/flask/app.py", line 1842, in finalize_request\
+            response = self.make_response(rv)\
+        File "/code/flask/app.py", line 2170, in make_response\
+            raise TypeError(\
+        TypeError: The view function did not return a valid response. The return type must be a string, dict, list, tuple with headers or status, Response instance, or WSGI callable, but it was a int.FC Invoke End RequestId: c6d5828d-8040-4e92-86af-ad45f507f6cf\
+        这个报错什么意思？'
+
     data = '{"content": "' + text + '","openid": "' + openid + '","scene":  2 ,"version":  2 }'
     headers = {'Content-Type': 'application/json'}
     print("data",data)
