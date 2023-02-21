@@ -92,11 +92,11 @@ app = Flask(__name__)
 # 基础项配置
 
 # 小程序apid
-APPID = 'wx03c9741b85f57a9b'
+APPID = 'wxa6b5a7477de550e6'
 # 小程序secr
-SECRET = 'e00a7350cbcec6abaa2c57980060811b'
+SECRET = '7dd7789919c8a891b6e347d35fbc2d9d'
 # 管理员id
-manageropenid = 'ophka5ORWZC6asTu2Frb5wI8VjO8'
+manageropenid = ''
 
 # 新注册免费次数
 newsignnum = 5
@@ -108,7 +108,7 @@ user = 'xiaoyichao'
 # 密码
 password = parse.quote_plus('18810960805Xyc$')
 # 表名
-database = 'user'
+database = 'user_ai'
 # 地址
 # sqlurl = 'rm-2ze40276yr5ikt5xn9o.rwlb.rds.aliyuncs.com'
 sqlurl = "user.cfvgtkm8uon9.us-west-2.rds.amazonaws.com"
