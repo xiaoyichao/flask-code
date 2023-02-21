@@ -254,6 +254,7 @@ def test():
     text = request.json.get('msg')
     openid = request.json.get('openid')
     a = infocheck(text,openid)
+    print("a ", a )
     return a
 
 
