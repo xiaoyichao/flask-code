@@ -211,8 +211,9 @@ def wordcheck():
 # 微信内容安全检测
 def infocheck(text,openid):
     # try:
-    print("acctoken", acctoken)
+    
     acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
+    print("acctoken", acctoken)
     checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
         ACCESS_TOKEN=acctoken)
 
