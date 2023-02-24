@@ -767,8 +767,10 @@ def mess():
                 last_time = cur_time - using_bot[openid]
             else:
                 last_time = 60
-                
-            if  last_time<30 and openid in openid_30s_dict:
+            
+            print(last_time<30, last_time, cur_time)
+            print(openid in openid_30s_dict)
+            if last_time<30 and openid in openid_30s_dict:
                 chatbot = openid_30s_dict[openid]
                 print("使用了自己30秒前的bot", chatbot)
             else:
