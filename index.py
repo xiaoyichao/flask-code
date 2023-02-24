@@ -91,11 +91,12 @@ def creat_new_bot():
                 account = random.choice(tmp_bots)
                 password = account_dict[account]
                 chatbot = get_bot(account, password)  
-                used_bot.add(chatbot)
+                
                 if chatbot is not None:
                     # break
+                    used_bot.add(chatbot)
                     print("随机选择chatbot, done")
-                    return {"chatbot":chatbot,"account_dict":account_dict,"all_bots":all_bots,"used_bot":used_bot,"usernum":usernum}
+                    return chatbot
             errmsg = "chatgpt的官网登录不上了，请稍后重试"
             print(errmsg)
             res = {
@@ -116,10 +117,11 @@ def creat_new_bot():
                 account = random.choice(tmp_bots)
                 password = account_dict[account]
                 chatbot = get_bot(account, password)
-                used_bot.add(chatbot)
-                print("重试后，选择了 bot")
-                print("随机选择chatbot, done")
-                return {"chatbot":chatbot,"account_dict":account_dict,"all_bots":all_bots,"used_bot":used_bot,"usernum":usernum}
+                if chatbot is not None:
+                    used_bot.add(chatbot)
+                    print("重试后，选择了 bot")
+                    print("随机选择chatbot, done")
+                    return chatbot
 
         errmsg = "太多用户使用，导致账号不足"
         print(errmsg)
@@ -816,14 +818,9 @@ def mess():
                 chatbot = openid_30s_dict[openid]
             else:
                 # 创建新的chatbot
-                creat_new_bot_dict = creat_new_bot()
+                chatbot = creat_new_bot()
                 print("creat_new_bot_dict", creat_new_bot_dict)
-                if "chatbot" in creat_new_bot_dict:
-                    chatbot = creat_new_bot_dict["chatbot"]
-                    account_dict = creat_new_bot_dict["account_dict"]
-                    all_bots = creat_new_bot_dict["all_bots"]
-                    used_bot = creat_new_bot_dict["used_bot"]
-                    usernum = creat_new_bot_dict["usernum"]
+                if not isinstance(chatbot,dict):
                     openid_30s_dict[openid] = chatbot
                 else:
                     return creat_new_bot_dict
