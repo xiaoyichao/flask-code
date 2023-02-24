@@ -18,9 +18,9 @@ account_list = sorted(account_dict.items(),key=lambda item:item[1],reverse=True)
 
 all_account =set()
 used_account = set()
-used_account = set()
 onlie_time_dict = {}
 openid_30s_dict = {}
+openid_account_dict = {}
 for info in account_list:
     account = info[0]
     password = info[1]
