@@ -819,11 +819,10 @@ def mess():
             else:
                 # 创建新的chatbot
                 chatbot = creat_new_bot()
-                print("creat_new_bot_dict", creat_new_bot_dict)
                 if not isinstance(chatbot,dict):
                     openid_30s_dict[openid] = chatbot
                 else:
-                    return creat_new_bot_dict
+                    return chatbot
       
             conversations = chatbot.get_conversations()
             conversation = conversations[0]["id"]
