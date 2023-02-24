@@ -75,63 +75,7 @@ def get_bot(account, password):
             print(account,password)
     return None
 
-def creat_new_bot():
-    # 随机选择一个没有使用的bot,最多等待5次
-    print("计算没有使用的bots")
-    tmp_bots = list(all_bots - used_bot)
-    if len(tmp_bots)>0:
-        account = random.choice(tmp_bots)
-        password = account_dict[account]
-        
-        chatbot = get_bot(account, password)
-        
-        if chatbot is None:
-            print("创建bot失败，尝试其他账户")
-            for i in range(3):
-                account = random.choice(tmp_bots)
-                password = account_dict[account]
-                chatbot = get_bot(account, password)  
-                
-                if chatbot is not None:
-                    # break
-                    used_bot.add(chatbot)
-                    print("随机选择chatbot, done")
-                    return chatbot
-            errmsg = "chatgpt的官网登录不上了，请稍后重试"
-            print(errmsg)
-            res = {
-                "resmsg": errmsg,
-                "num": usernum+1,
-                "code": 200
-            }
-            return res
-              
-    else:
-        i = 0
-        while i < 5:
-            time.sleep(0.5)
-            print("开始重试")
-            tmp_bots = list(all_bots - used_bot)
-            i+=1
-            if len(tmp_bots)>0:
-                account = random.choice(tmp_bots)
-                password = account_dict[account]
-                chatbot = get_bot(account, password)
-                if chatbot is not None:
-                    used_bot.add(chatbot)
-                    print("重试后，选择了 bot")
-                    print("随机选择chatbot, done")
-                    return chatbot
-
-        errmsg = "太多用户使用，导致账号不足"
-        print(errmsg)
-        res = {
-            "resmsg": errmsg,
-            "num": usernum+1,
-            "code": 200
-        }
-        return res
-        
+   
     
        
     
@@ -818,11 +762,63 @@ def mess():
                 chatbot = openid_30s_dict[openid]
             else:
                 # 创建新的chatbot
-                chatbot = creat_new_bot()
-                if not isinstance(chatbot,dict):
-                    openid_30s_dict[openid] = chatbot
+
+                # 随机选择一个没有使用的bot,最多等待5次
+                print("计算没有使用的bots")
+                tmp_bots = list(all_bots - used_bot)
+                if len(tmp_bots)>0:
+                    account = random.choice(tmp_bots)
+                    password = account_dict[account]
+                    
+                    chatbot = get_bot(account, password)
+                    
+                    if chatbot is None:
+                        print("创建bot失败，尝试其他账户")
+                        for i in range(3):
+                            account = random.choice(tmp_bots)
+                            password = account_dict[account]
+                            chatbot = get_bot(account, password)  
+                            
+                            if chatbot is not None:
+                                break
+                                used_bot.add(chatbot)
+                                print("随机选择chatbot, done")
+
+                        errmsg = "chatgpt的官网登录不上了，请稍后重试"
+                        print(errmsg)
+                        res = {
+                            "resmsg": errmsg,
+                            "num": usernum+1,
+                            "code": 200
+                        }
+                        return res
+                        
                 else:
-                    return chatbot
+                    i = 0
+                    while i < 5:
+                        time.sleep(0.5)
+                        print("开始重试")
+                        tmp_bots = list(all_bots - used_bot)
+                        i+=1
+                        if len(tmp_bots)>0:
+                            account = random.choice(tmp_bots)
+                            password = account_dict[account]
+                            chatbot = get_bot(account, password)
+                            if chatbot is not None:
+                                used_bot.add(chatbot)
+                                print("重试后，选择了 bot")
+                                print("随机选择chatbot, done")
+
+
+                    errmsg = "太多用户使用，导致账号不足"
+                    print(errmsg)
+                    res = {
+                        "resmsg": errmsg,
+                        "num": usernum+1,
+                        "code": 200
+                    }
+                    return res
+                
       
             conversations = chatbot.get_conversations()
             conversation = conversations[0]["id"]
