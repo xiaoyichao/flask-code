@@ -722,15 +722,13 @@ def mess():
     msg = request.json.get('msg')
     # maxtoken = request.json.get('maxtoken')
     openid = request.json.get('openid')
-    modetype = request.json.get('modetype')
+    # modetype = request.json.get('modetype')
 
     user1 = User.query.filter(User.openid == openid).first()
     usernum = user1.num - 1
 
-    print("随机选择了api")
+    # print("随机选择了api")
 
-
-    
 
     print("准备开始进行 infocheck")
     if infocheck(msg, openid) is False:
@@ -746,98 +744,56 @@ def mess():
         print("准备开始请求chatgpt")
         prompt = msg
         response = ""
-        if modetype == 2:
-            print("modetype ==2", modetype)
-            chatbot.clear_conversations()
 
-            for data in chatbot.ask(
-                prompt
-            ):
-                response = data["message"]
-            print("请求chatgpt成功")
+        print("len(openid_30s_dict)", len(openid_30s_dict))
+        if openid in onlie_time_dict:
+            cur_time = int(time.time())
+            last_time = cur_time - onlie_time_dict[openid]
+        else:
+            last_time = 1200
 
-
-            print("chatgpt response", response)
-        else:  # modetype ==3:
-            print("modetype ==3", modetype)
-            # print("openid", openid, "openid_30s_dict", openid_30s_dict)
-            print("len(openid_30s_dict)", len(openid_30s_dict))
+        print(last_time < 120)
+        print(openid in openid_30s_dict)
+        if last_time<120 and openid in openid_30s_dict:
+            chatbot = openid_30s_dict[openid]
+            print("使用了自己30秒前的bot", chatbot)
+        else:
+            if openid in openid_30s_dict:
+                openid_30s_dict.pop(openid)
+            if openid in openid_account_dict:
+                old_account = openid_account_dict[openid]
+                if old_account in used_account:
+                    used_account.remove(old_account)
             if openid in onlie_time_dict:
-                cur_time = int(time.time())
-                last_time = cur_time - onlie_time_dict[openid]
-            else:
-                last_time = 1200
+                onlie_time_dict.pop(openid)
+            
 
-            print(last_time < 120)
-            print(openid in openid_30s_dict)
-            if last_time<120 and openid in openid_30s_dict:
-                chatbot = openid_30s_dict[openid]
-                print("使用了自己30秒前的bot", chatbot)
-            else:
-                if openid in openid_30s_dict:
-                    openid_30s_dict.pop(openid)
-                if openid in openid_account_dict:
-                    old_account = openid_account_dict[openid]
-                    if old_account in used_account:
-                        used_account.remove(old_account)
-                if openid in onlie_time_dict:
-                    onlie_time_dict.pop(openid)
+            # 创建新的chatbot
+
+            # 随机选择一个没有使用的bot,最多等待5次
+            print("准备使用新的bot")
+            print("计算没有使用的bots")
+            tmp_bots = list(all_account - used_account)
+            if len(tmp_bots)>0:
+                print("有可以使用的bot")
+                account = random.choice(tmp_bots)
+                password = account_dict[account]
                 
-
-                # 创建新的chatbot
-
-                # 随机选择一个没有使用的bot,最多等待5次
-                print("准备使用新的bot")
-                print("计算没有使用的bots")
-                tmp_bots = list(all_account - used_account)
-                if len(tmp_bots)>0:
-                    print("有可以使用的bot")
-                    account = random.choice(tmp_bots)
-                    password = account_dict[account]
-                    
-                    chatbot = get_bot(account, password)
-                    print("随机选择chatbot, done")
-                    
-                    if chatbot is None:
-                        print("创建bot失败，尝试其他账户")
-                        for i in range(3):
-                            account = random.choice(tmp_bots)
-                            password = account_dict[account]
-                            chatbot = get_bot(account, password)  
-                            
-                            if chatbot is not None:
-
-                                break
-
-                        errmsg = "chatgpt的官网登录不上了，请稍后重试"
-                        print(errmsg)
-                        res = {
-                            "resmsg": errmsg,
-                            "num": usernum+1,
-                            "code": 200
-                        }
-                        return res
-                    else:
-                        used_account.add(account)
+                chatbot = get_bot(account, password)
+                print("随机选择chatbot, done")
+                
+                if chatbot is None:
+                    print("创建bot失败，尝试其他账户")
+                    for i in range(3):
+                        account = random.choice(tmp_bots)
+                        password = account_dict[account]
+                        chatbot = get_bot(account, password)  
                         
-                else:
-                    i = 0
-                    while i < 5:
-                        time.sleep(0.5)
-                        print("开始重试")
-                        tmp_bots = list(all_account - used_account)
-                        i+=1
-                        if len(tmp_bots)>0:
-                            account = random.choice(tmp_bots)
-                            password = account_dict[account]
-                            chatbot = get_bot(account, password)
-                            if chatbot is not None:
-                                print("重试后，选择了 bot")
-                                used_account.add(account)
-                                
+                        if chatbot is not None:
 
+                            break
 
-                    errmsg = "太多用户使用，导致账号不足"
+                    errmsg = "chatgpt的官网登录不上了，请稍后重试"
                     print(errmsg)
                     res = {
                         "resmsg": errmsg,
@@ -845,6 +801,34 @@ def mess():
                         "code": 200
                     }
                     return res
+                else:
+                    used_account.add(account)
+                    
+            else:
+                i = 0
+                while i < 5:
+                    time.sleep(0.5)
+                    print("开始重试")
+                    tmp_bots = list(all_account - used_account)
+                    i+=1
+                    if len(tmp_bots)>0:
+                        account = random.choice(tmp_bots)
+                        password = account_dict[account]
+                        chatbot = get_bot(account, password)
+                        if chatbot is not None:
+                            print("重试后，选择了 bot")
+                            used_account.add(account)
+                            
+
+
+                errmsg = "太多用户使用，导致账号不足"
+                print(errmsg)
+                res = {
+                    "resmsg": errmsg,
+                    "num": usernum+1,
+                    "code": 200
+                }
+                return res
 
             openid_30s_dict[openid] = chatbot
             onlie_time_dict[openid] = int(time.time())
