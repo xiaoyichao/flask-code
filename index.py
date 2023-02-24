@@ -762,7 +762,13 @@ def mess():
             print("modetype ==3", modetype)
             print("openid", openid, "openid_30s_dict", openid_30s_dict)
             print("len(openid_30s_dict)", len(openid_30s_dict))
-            if openid in openid_30s_dict:
+            if openid in using_bot:
+                cur_time = int(time.time())
+                last_time = cur_time - using_bot[openid]
+            else:
+                last_time = 60
+                
+            if  last_time<30 and openid in openid_30s_dict:
                 chatbot = openid_30s_dict[openid]
                 print("使用了自己30秒前的bot", chatbot)
             else:
@@ -827,6 +833,7 @@ def mess():
                     return res
                 
             openid_30s_dict[openid] = chatbot
+            using_bot[openid] = int(time.time())
             conversations = chatbot.get_conversations()
             conversation = conversations[0]["id"]
 
