@@ -759,7 +759,8 @@ def mess():
 
             print("chatgpt response", response)
         else: # modetype ==3:
-            print("modetype ==3")
+            print("modetype ==3", modetype)
+            print("openid", openid)
             if openid in openid_30s_dict:
                 chatbot = openid_30s_dict[openid]
                 print("使用了自己30秒前的bot", chatbot)
