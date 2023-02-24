@@ -714,6 +714,10 @@ def LOGIN():
 # 消息处理 chatgpt
 @app.route('/message', methods=['POST'])
 def mess():
+    global used_account
+    global onlie_time_dict
+    global openid_30s_dict
+    global openid_account_dict
     print("接收到微信的请求")
     api1 = ApiPoll.query.filter(
         ApiPoll.statu == True, ApiPoll.checkstatu == True).all()
@@ -728,10 +732,7 @@ def mess():
     usernum = user1.num - 1
 
     # print("随机选择了api")
-    global used_account
-    global onlie_time_dict
-    global openid_30s_dict
-    global openid_account_dict
+
 
     print("准备开始进行 infocheck")
     if infocheck(msg, openid) is False:
@@ -810,6 +811,7 @@ def mess():
                     return res
                 else:
                     used_account.add(account)
+                    print("used_account", used_account)
                     
             else:
                 i = 0
