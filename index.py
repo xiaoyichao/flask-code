@@ -172,7 +172,7 @@ def wordcheck():
 def infocheck(text,openid):
     try:
         acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
-        print("acctoken", acctoken)
+        # print("acctoken", acctoken)
         checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
             ACCESS_TOKEN=acctoken)
 
@@ -185,8 +185,8 @@ def infocheck(text,openid):
         res = requests.post(checkurl, data=data.encode('utf-8'), headers=headers)
         lev = res.json().get("result").get("label")
         suggest = res.json().get("result").get("suggest")
-        print("res.json()", res.json())
-        print("lev", lev)
+        # print("res.json()", res.json())
+        # print("lev", lev)
         print("suggest", suggest)
         if suggest == "review" or suggest == "pass":
             return True
@@ -747,6 +747,7 @@ def mess():
         prompt = msg
         response = ""
         if modetype ==2:
+            print("modetype ==2", modetype)
             chatbot.clear_conversations()
 
             for data in chatbot.ask(
@@ -758,6 +759,7 @@ def mess():
 
             print("chatgpt response", response)
         else: # modetype ==3:
+            print("modetype ==3")
             if openid in openid_30s_dict:
                 chatbot = openid_30s_dict[openid]
                 print("使用了自己30秒前的bot", chatbot)
