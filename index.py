@@ -826,7 +826,7 @@ def mess():
                     }
                     return res
                 
-      
+            openid_30s_dict[openid] = chatbot
             conversations = chatbot.get_conversations()
             conversation = conversations[0]["id"]
 
