@@ -766,11 +766,11 @@ def mess():
                 cur_time = int(time.time())
                 last_time = cur_time - using_bot[openid]
             else:
-                last_time = 60
+                last_time = 1200
             
-            print(last_time<30, last_time, cur_time)
+            print(last_time<120, last_time, cur_time)
             print(openid in openid_30s_dict)
-            if last_time<30 and openid in openid_30s_dict:
+            if last_time<120 and openid in openid_30s_dict:
                 chatbot = openid_30s_dict[openid]
                 print("使用了自己30秒前的bot", chatbot)
             else:
@@ -786,6 +786,7 @@ def mess():
                     password = account_dict[account]
                     
                     chatbot = get_bot(account, password)
+                    print("随机选择chatbot, done")
                     
                     if chatbot is None:
                         print("创建bot失败，尝试其他账户")
@@ -795,9 +796,8 @@ def mess():
                             chatbot = get_bot(account, password)  
                             
                             if chatbot is not None:
+
                                 break
-                                used_bot.add(chatbot)
-                                print("随机选择chatbot, done")
 
                         errmsg = "chatgpt的官网登录不上了，请稍后重试"
                         print(errmsg)
@@ -820,9 +820,7 @@ def mess():
                             password = account_dict[account]
                             chatbot = get_bot(account, password)
                             if chatbot is not None:
-                                used_bot.add(chatbot)
                                 print("重试后，选择了 bot")
-                                print("随机选择chatbot, done")
 
 
                     errmsg = "太多用户使用，导致账号不足"
@@ -833,7 +831,9 @@ def mess():
                         "code": 200
                     }
                     return res
-                
+
+            used_bot.add(chatbot)
+            
             openid_30s_dict[openid] = chatbot
             using_bot[openid] = int(time.time())
             conversations = chatbot.get_conversations()
