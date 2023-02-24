@@ -832,19 +832,19 @@ def mess():
 
             openid_30s_dict[openid] = chatbot
             onlie_time_dict[openid] = int(time.time())
-            
-        conversations = chatbot.get_conversations()
-        if len(conversations)>0:
-            conversation = conversations[0]["id"]
-            for data in chatbot.ask(prompt=prompt,conversation_id=conversation):
-                response = data["message"]
-        else:
-            for data in chatbot.ask(prompt=prompt):
-                response = data["message"]
-        print("请求chatgpt成功") 
-
-
-        print("chatgpt response", response)            
+        try:    
+            conversations = chatbot.get_conversations()
+            if len(conversations)>0:
+                conversation = conversations[0]["id"]
+                for data in chatbot.ask(prompt=prompt,conversation_id=conversation):
+                    response = data["message"]
+            else:
+                for data in chatbot.ask(prompt=prompt):
+                    response = data["message"]
+            print("请求chatgpt成功") 
+            print("chatgpt response", response)    
+        except:
+            return errout("创建或请求chatgpt数据失败，请稍后再试") 
 
         if response != "":
 
@@ -852,8 +852,6 @@ def mess():
             ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
             ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
                 {'callnum': ApiPoll.callnum + 1})
-            # user1 = User.query.filter(User.openid == openid).first()
-            # usernum = user1.num - 1
             User.query.filter(User.openid == openid).update({'num': usernum})
             db.session.add(ask1)
             db.session.commit()
