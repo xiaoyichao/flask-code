@@ -75,7 +75,7 @@ def get_bot(account, password):
             print(account,password)
     return None
 
-def creat_new_bot(account_dict,all_bots,used_bot,usernum):
+def creat_new_bot():
     # 随机选择一个没有使用的bot,最多等待5次
     print("计算没有使用的bots")
     tmp_bots = list(all_bots - used_bot)
@@ -816,7 +816,7 @@ def mess():
                 chatbot = openid_30s_dict[openid]
             else:
                 # 创建新的chatbot
-                creat_new_bot_dict = creat_new_bot(account_dict,all_bots,used_bot,usernum)
+                creat_new_bot_dict = creat_new_bot()
                 print("creat_new_bot_dict", creat_new_bot_dict)
                 if "chatbot" in creat_new_bot_dict:
                     chatbot = creat_new_bot_dict["chatbot"]
