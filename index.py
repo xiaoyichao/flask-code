@@ -16,7 +16,7 @@ account_dict = {'wolhtetjuywvb@eurokool.com': 'abc123456789', 'uvffqudbqob@eurok
 print("账户总数量",len(account_dict))
 account_list = sorted(account_dict.items(),key=lambda item:item[1],reverse=True)
 
-all_account =set()
+all_account = set()
 used_account = set()
 onlie_time_dict = {}
 openid_30s_dict = {}
@@ -773,6 +773,7 @@ def mess():
             # 随机选择一个没有使用的bot,最多等待5次
             print("准备使用新的bot")
             print("计算没有使用的bots")
+            print("used_account", used_account)
             tmp_bots = list(all_account - used_account)
             if len(tmp_bots) < 2:
                 used_account = set()
