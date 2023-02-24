@@ -833,18 +833,18 @@ def mess():
             openid_30s_dict[openid] = chatbot
             onlie_time_dict[openid] = int(time.time())
             
-            conversations = chatbot.get_conversations()
-            if len(conversations)>0:
-                conversation = conversations[0]["id"]
-                for data in chatbot.ask(prompt=prompt,conversation_id=conversation):
-                    response = data["message"]
-            else:
-                for data in chatbot.ask(prompt=prompt):
-                    response = data["message"]
-            print("请求chatgpt成功") 
+        conversations = chatbot.get_conversations()
+        if len(conversations)>0:
+            conversation = conversations[0]["id"]
+            for data in chatbot.ask(prompt=prompt,conversation_id=conversation):
+                response = data["message"]
+        else:
+            for data in chatbot.ask(prompt=prompt):
+                response = data["message"]
+        print("请求chatgpt成功") 
 
 
-            print("chatgpt response", response)            
+        print("chatgpt response", response)            
 
         if response != "":
 
