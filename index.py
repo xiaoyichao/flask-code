@@ -728,7 +728,10 @@ def mess():
     usernum = user1.num - 1
 
     # print("随机选择了api")
-
+    global used_account
+    global onlie_time_dict
+    global openid_30s_dict
+    global openid_account_dict
 
     print("准备开始进行 infocheck")
     if infocheck(msg, openid) is False:
@@ -773,6 +776,7 @@ def mess():
             # 随机选择一个没有使用的bot,最多等待5次
             print("准备使用新的bot")
             print("计算没有使用的bots")
+            global used_account
             print("used_account", used_account)
             tmp_bots = list(all_account - used_account)
             if len(tmp_bots) < 2:
