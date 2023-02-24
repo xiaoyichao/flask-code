@@ -776,11 +776,11 @@ def mess():
             # 随机选择一个没有使用的bot,最多等待5次
             print("准备使用新的bot")
             print("计算没有使用的bots")
-            global used_account
+
             print("used_account", used_account)
             tmp_bots = list(all_account - used_account)
-            if len(tmp_bots) < 2:
-                used_account = set()
+            # if len(tmp_bots) < 2:
+            #     used_account = set()
             if len(tmp_bots)>0:
                 print("有可以使用的bot")
                 account = random.choice(tmp_bots)
