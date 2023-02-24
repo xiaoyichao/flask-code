@@ -768,7 +768,7 @@ def mess():
             else:
                 last_time = 1200
             
-            print(last_time<120, last_time, cur_time)
+            print(last_time<120)
             print(openid in openid_30s_dict)
             if last_time<120 and openid in openid_30s_dict:
                 chatbot = openid_30s_dict[openid]
