@@ -774,6 +774,8 @@ def mess():
             print("准备使用新的bot")
             print("计算没有使用的bots")
             tmp_bots = list(all_account - used_account)
+            if len(tmp_bots) < 2:
+                used_account = set()
             if len(tmp_bots)>0:
                 print("有可以使用的bot")
                 account = random.choice(tmp_bots)
