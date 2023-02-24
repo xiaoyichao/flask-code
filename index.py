@@ -740,10 +740,10 @@ def mess():
         print("内容包含敏感文字，请重新编辑发送")
         return res
 
-    print("准备开始请求chatgpt")
+    
 
     try:
-        #### Basic example (single result):
+        print("准备开始请求chatgpt")
         prompt = msg
         response = ""
         if modetype ==2:
@@ -760,13 +760,16 @@ def mess():
         else: # modetype ==3:
             if openid in openid_30s_dict:
                 chatbot = openid_30s_dict[openid]
+                print("使用了自己30秒前的bot", chatbot)
             else:
                 # 创建新的chatbot
 
                 # 随机选择一个没有使用的bot,最多等待5次
+                print("准备使用新的bot")
                 print("计算没有使用的bots")
                 tmp_bots = list(all_bots - used_bot)
                 if len(tmp_bots)>0:
+                    print("有可以使用的bot")
                     account = random.choice(tmp_bots)
                     password = account_dict[account]
                     
