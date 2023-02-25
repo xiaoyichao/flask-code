@@ -1,16 +1,7 @@
-<!--
- * @Author: xiaoyichao xiao_yi_chao@163.com
- * @Date: 2023-02-24 18:51:36
- * @LastEditors: xiaoyichao xiao_yi_chao@163.com
- * @LastEditTime: 2023-02-25 16:59:42
- * @FilePath: /flask-code/README.md
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 
 # 微信小程序访问ChatGPT
 
 后端都在这个项目里边
-此版本已经修复bug
 
 整体部署流程和小袁是一样的，区别在于（1）服务器地区的选择 和（2）点击代码部署之前要安装一个插件
 
