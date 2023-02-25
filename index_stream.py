@@ -2,14 +2,14 @@
 Author: xiaoyichao xiao_yi_chao@163.com
 Date: 2023-02-24 19:01:10
 LastEditors: xiaoyichao xiao_yi_chao@163.com
-LastEditTime: 2023-02-24 19:01:14
+LastEditTime: 2023-02-25 19:32:03
 FilePath: /flask-code/index_stream.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
 
 from flask import Flask, Response, request
 import time 
-from 皮.V1 import Chatbot
+from revChatGPT.V1 import Chatbot
 
 app = Flask(__name__)
 
@@ -21,7 +21,7 @@ def generate_text():
         yield str(i) + "\n"
         print(i)
 
-@app.route('/stream', methods=['GET'])
+@app.route('/stream', methods=['GET','POST'])
 def stream():
     """流式传输文本的视图函数"""
     return Response(generate_text(), mimetype='text/plain', content_type='text/event-stream')
