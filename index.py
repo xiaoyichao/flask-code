@@ -169,9 +169,7 @@ def wordcheck():
         return jsonify({'code':0,'msg':'err'})
 
 
-
-# 微信内容安全检测
-def infocheck(text,openid):
+def word_check_(text,openid):
     try:
         acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
         # print("acctoken", acctoken)
@@ -189,16 +187,25 @@ def infocheck(text,openid):
         suggest = res.json().get("result").get("suggest")
         # print("res.json()", res.json())
         # print("lev", lev)
-        print("suggest", suggest)
+        print("suggest", suggest, text)
         if suggest == "review" or suggest == "pass":
             return True
         else:
             return False
     except Exception as e:
-        getacctoken()
-        print('重新获取')
+        # getacctoken()
+        print('获取微信的敏感词接口失败',text)
         # return jsonify('内容包含敏感文字，请重新编辑发送')
         return False
+
+# 微信内容安全检测
+def infocheck(text,openid):
+    for i in range(2):
+        res = word_check_(text,openid)
+        if res is True:
+            return res
+    return res
+
 
 def getacctoken():
     print('get_token')
