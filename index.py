@@ -204,6 +204,8 @@ def infocheck(text,openid):
         res = word_check_(text,openid)
         if res is True:
             return res
+        if i ==1:
+            return True
     return res
 
 
