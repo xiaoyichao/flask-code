@@ -134,6 +134,8 @@ class Adj(db.Model):
     __tablename__ = 'adj'
     id = db.Column(db.Integer, primary_key=True)
     adjinfo = db.Column(db.String(10240))
+    adjtime = db.Column(db.String(1024))
+    valid_time = db.Column(db.String(1024))
 
 
 class ApiPoll(db.Model):
@@ -171,6 +173,7 @@ def wordcheck():
 
 def word_check_(text,openid):
     try:
+        getacctoken()
         acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
         # print("acctoken", acctoken)
         checkurl = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token={ACCESS_TOKEN}".format(
@@ -188,7 +191,8 @@ def word_check_(text,openid):
         # print("res.json()", res.json())
         # print("lev", lev)
         print("suggest", suggest, text)
-        if suggest == "review" or suggest == "pass":
+        #if suggest == "review" or suggest == "pass":
+        if suggest == "pass":
             return True
         else:
             return False
@@ -211,16 +215,31 @@ def infocheck(text,openid):
 
 def getacctoken():
     print('get_token')
-    access_token_url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential' \
-                       '&appid={appid}&secret={secret}'.format(appid=APPID, secret=SECRET)
-    access_token_res = requests.get(access_token_url).json()['access_token']
+    now_time = datetime.now()
+    print(now_time.strftime("%Y-%m-%d %H:%M:%S"))
     atok = Adj.query.filter(Adj.id == 2).first()
-    if atok:
-        atok.adjinfo = access_token_res
+    if now_time.strftime("%Y-%m-%d %H:%M:%S") >= atok.valid_time:
+        print("access_token 失效，重新获取")
+        access_token_url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential' \
+                           '&appid={appid}&secret={secret}'.format(appid=APPID, secret=SECRET)
+        expires_in_res = requests.get(access_token_url).json()['expires_in']
+        # print(expires_in_res)
+        access_token_res = requests.get(access_token_url).json()['access_token']
+        # print(access_token_res)
+        valid_time_ = (now_time + timedelta(seconds=expires_in_res)).strftime("%Y-%m-%d %H:%M:%S")
+        if atok:
+            atok.adjinfo = access_token_res
+            atok.adjtime = expires_in_res
+            atok.valid_time = valid_time_
+        else:
+            atok = Adj(id=2, adjinfo=access_token_res, adjtime=expires_in_res, valid_time=valid_time_)
+            db.session.add(atok)
+        db.session.commit()
+        print(access_token_res)
     else:
-        atok = Adj(id = 2,adjinfo=access_token_res)
-        db.session.add(atok)
-    db.session.commit()
+        print("access_token 有效")
+        access_token_res = atok.adjinfo
+        print(access_token_res)
     return access_token_res
     if access_token_res.json().get('errcode'):
         raise 'AccessToken()'
@@ -742,9 +761,8 @@ def mess():
 
     # print("随机选择了api")
 
-
-    print("准备开始进行 infocheck")
-    if infocheck(msg, openid) is False:
+    print("准备开始进行敏感词检测")
+    if word_check_(msg, openid) is False:
         res = {
             "resmsg": "内容包含敏感文字，我们都是社会主义的好公民，要保持积极正向，共建美好祖国。",
             "num": usernum,
