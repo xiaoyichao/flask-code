@@ -1,5 +1,4 @@
-
-from datetime import datetime, date
+from datetime import datetime, date,timedelta
 from flask import Flask, request, jsonify 
 import requests
 import json
@@ -191,8 +190,8 @@ def word_check_(text,openid):
         # print("res.json()", res.json())
         # print("lev", lev)
         print("suggest", suggest, text)
-        #if suggest == "review" or suggest == "pass":
-        if suggest == "pass":
+        if suggest == "review" or suggest == "pass":
+        # if suggest == "pass":
             return True
         else:
             return False
@@ -243,7 +242,6 @@ def getacctoken():
     return access_token_res
     if access_token_res.json().get('errcode'):
         raise 'AccessToken()'
-          
 @app.route('/test',methods=['POST'])
 def test():
     text = request.json.get('msg')
@@ -925,3 +923,4 @@ def userinfo():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
