@@ -793,6 +793,14 @@ def mess():
             # print("messages", messages)
             answ = response['choices'][0]['message']['content']
             print("answ", answ)
+
+            ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
+            ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
+                {'callnum': ApiPoll.callnum + 1})
+            User.query.filter(User.openid == openid).update({'num': usernum})
+            db.session.add(ask1)
+            db.session.commit()
+            
             res = {
                 "resmsg": answ,
                 "num": usernum,
