@@ -8,6 +8,7 @@ import pymysql
 import random
 from revChatGPT.V1 import Chatbot
 import time
+import openai
 # from creat_bot import creat_new_bot
 
 account_dict = {'wolhtetjuywvb@eurokool.com': 'abc123456789', 'uvffqudbqob@eurokool.com': 'abc123456789', 'svakzkwcegq@eurokool.com': 'abc123456789', 'wyabuwztdcct@eurokool.com': 'abc123456789', 'qmqows@eurokool.com': 'abc123456789', 'lahuseman88@outlook.com': 'of75stFg8j', 'hp52477bgmw7027@163.com': 'XnwlHh5VwD', 'px303xgza2591@163.com': 'GMV1x4wtQC', 'oxqvp331ztx1@163.com': '2RUt5HOjbh', 'at10574llm37@163.com': 'LE4cy7hHQt', 'ijyvnc31uj72@163.com': '68s00wDGmV', 'sf7549vvvd9429@163.com': '3PXQrl4eEa', 'qdmcca89jt466@163.com': 'c618XMONr7', 'uyprjj68cb372@163.com': 'B3P21G878j', 'vi8715ewcu3894@163.com': 'N4v99fzTE4', 'gwclko009sa211@163.com': '29uQ60aFUi', 'ppsor13xvq33@163.com': 'z4yIqD2wQX', 'zy673rowg952@163.com': 'ZX2P8w9A2L', 'ol5092rxmn1381@163.com': 'T7SU1VVNoX', 'aapqp508udid12@163.com': '48aSapa33T', 'kwhaf497rru7@163.com': 'reG0TRUM38', 'yejiw31tnl3@163.com': 'rLKCWrLdGh', 'shrfm51brh36@163.com': 'jPx6PQD1s9', 'heail17ewu25@163.com': 'ho4l2A18MU', 'jb6963fdhv062@163.com': 'bQA2s51d9d', 'snjbc8672ytvs37@163.com': 'T10rLTGLC2', 'uozdb01bjl31@163.com': '6zB4lhgg8A', 'iy2373patc1753@163.com': '40g52K2rPf', 'bvpui74kyox04@163.com': 'hEHpWWCWwG', 'slqdi3170ncrg74@163.com': '3PrKE16NpZ', 'dsyqy18esd2@163.com': '4N1ZgWw5Wc', 'injimr95wy023@163.com': 'y6NlU7Ab10', 'jh8994hoyw8778@163.com': 'TPx6S0niJh', 'hllri02sape92@163.com': '10z1o1970a', 'oeixcv048nw06@163.com': 'doL0H0s6pa', 'hb93594chrn527@163.com': 'k4kyKbQ67n', 'ggzlm907nizp30@163.com': 'qx9XYs194p', 'kl19967dgak179@163.com': 's29s2ubPQz', 'zbmhv435rcky46@163.com': 'gp2bb5wWEc', 'ne87280hkrc3035@163.com': '3J72720xz2', 'lm845oyoa384@163.com': 'm55Vh3xXNb', 'shndcl35xb75@163.com': 'YEggHvB8KS', 'ug338xsxs865@163.com': '7E99b553PD', 'hi45728ahlm1616@163.com': '5gRLz2ckZ6', 'kaiucb434fc507@163.com': 'FqzVglS26E', 'rfcxn305gqkw6@163.com': 'N9xhzlq2xM', 'owcmn6032wjlg0@163.com': '0q7OEK5ebd', 'bedupj72vv90@163.com': 'i4nvjQ8Lh8', 'zt0834cbde585@163.com': 'r05a2vb3JX', 'ih7850ejso311@163.com': 'su057OmnIB', 'rhxtyh320kq29@163.com': 'g96YMnuuoa', 'ltbbby14sc643@163.com': 'plDg0kf3vU', 'sinttw48gq102@163.com': '3c1UV449u9', 'rz2532xmlh691@163.com': '29wrkq2XZh', 'nsbzg881ujv0@163.com': 'u50ynaVk4y', 'yi6899kipr246@163.com': 'q1t3uPDJpA'}
@@ -747,43 +748,19 @@ def mess():
     print("接收到微信的请求")
     api1 = ApiPoll.query.filter(
         ApiPoll.statu == True, ApiPoll.checkstatu == True).all()
-    api = random.choice(api1)# 基本没用
+    api = random.choice(api1)# 用来选择api_key
 
     msg = request.json.get('msg')
     # maxtoken = request.json.get('maxtoken')
     openid = request.json.get('openid')
-    # modetype = request.json.get('modetype')
+    modetype = request.json.get('modetype')
 
     user1 = User.query.filter(User.openid == openid).first()
     usernum = user1.num - 1
 
-    # print("随机选择了api")
-    modetype =2
-    import openai
+    print("随机选择了api")
 
-    if modetype==2:
-        print("modetype==2")
-        openai.api_key = "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"
-        response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-                 {"role": "user", "content": msg},
-                # {"role": "system", "content": "You are a helpful assistant."},
-                # {"role": "user", "content": "Who won the world series in 2020?"},
-                # {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
-                # {"role": "user", "content": "Where was it played?"}
-            ]
-        )
 
-        # print("messages", messages)
-        answ = response['choices'][0]['message']['content']
-        print("answ", answ)
-        res = {
-            "resmsg": answ,
-            "num": usernum,
-            "code": 200
-        }
-        return res
 
     print("准备开始进行敏感词检测")
     if word_check_(msg, openid) is False:
@@ -796,6 +773,35 @@ def mess():
         return res
 
     try:
+
+        if modetype==2:
+            print("modetype==2")
+            # openai.api_key = "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"
+            openai.api_key = api.apikey
+            # print("msg", msg)
+            response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                    {"role": "user", "content": msg},
+                    # {"role": "system", "content": "You are a helpful assistant."},
+                    # {"role": "user", "content": "Who won the world series in 2020?"},
+                    # {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+                    # {"role": "user", "content": "Where was it played?"}
+                ]
+            )
+
+            # print("messages", messages)
+            answ = response['choices'][0]['message']['content']
+            print("answ", answ)
+            res = {
+                "resmsg": answ,
+                "num": usernum+1,
+                "code": 200
+            }
+            return res
+        
+        # 如果不是modetype==2 则会进入下边的==3的情况，因为有retur,所以modetype==2的时候，走不到下边的逻辑
+
         print("准备开始请求chatgpt")
         prompt = msg
         response = ""
