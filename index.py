@@ -27,6 +27,7 @@ for info in account_list:
 
 
 app = Flask(__name__)
+app.config["timeout"] = 180
 
 # 基础项配置
 
