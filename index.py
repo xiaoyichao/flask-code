@@ -795,7 +795,7 @@ def mess():
             print("answ", answ)
             res = {
                 "resmsg": answ,
-                "num": usernum+1,
+                "num": usernum,
                 "code": 200
             }
             return res
