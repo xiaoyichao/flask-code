@@ -758,6 +758,32 @@ def mess():
     usernum = user1.num - 1
 
     # print("随机选择了api")
+    modetype =2
+    import openai
+
+    if modetype==2:
+        print("modetype==2")
+        openai.api_key = "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"
+        response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+                 {"role": "user", "content": msg},
+                # {"role": "system", "content": "You are a helpful assistant."},
+                # {"role": "user", "content": "Who won the world series in 2020?"},
+                # {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+                # {"role": "user", "content": "Where was it played?"}
+            ]
+        )
+
+        # print("messages", messages)
+        answ = response['choices'][0]['message']['content']
+        print("answ", answ)
+        res = {
+            "resmsg": answ,
+            "num": usernum,
+            "code": 200
+        }
+        return res
 
     print("准备开始进行敏感词检测")
     if word_check_(msg, openid) is False:
@@ -870,8 +896,14 @@ def mess():
             conversations = chatbot.get_conversations()
             if len(conversations)>0:
                 conversation = conversations[0]["id"]
-                for data in chatbot.ask(prompt=prompt,conversation_id=conversation):
-                    response = data["message"]
+                try:
+                    for data in chatbot.ask(prompt=prompt,conversation_id=conversation):
+                        response = data["message"]
+                except:
+                    # {'detail': 'Something went wrong, please try reloading the conversation.'}
+                    for data in chatbot.ask(prompt=prompt):
+                        response = data["message"]
+
             else:
                 for data in chatbot.ask(prompt=prompt):
                     response = data["message"]
