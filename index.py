@@ -39,7 +39,7 @@ SECRET = 'e00a7350cbcec6abaa2c57980060811b'
 manageropenid = 'ophka5ORWZC6asTu2Frb5wI8VjO8'
 
 # 新注册免费次数
-newsignnum = 5
+newsignnum = 10
 
 
 # 数据库配置
