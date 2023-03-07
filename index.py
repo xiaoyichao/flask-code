@@ -792,6 +792,7 @@ def mess():
 
             # print("messages", messages)
             answ = response['choices'][0]['message']['content']
+            answ = answ.lstrip("\n")
             print("answ", answ)
 
             ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
