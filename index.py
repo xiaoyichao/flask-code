@@ -778,36 +778,88 @@ def mess():
             print("modetype==2")
             # openai.api_key = "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"
             openai.api_key = api.apikey
-            # print("msg", msg)
-            response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                    {"role": "user", "content": msg},
-                    # {"role": "system", "content": "You are a helpful assistant."},
-                    # {"role": "user", "content": "Who won the world series in 2020?"},
-                    # {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
-                    # {"role": "user", "content": "Where was it played?"}
-                ]
-            )
+            print("msg", msg)
+            try:
+                n=0
+                while n<2:
+                    try:
+                        n+=1
+                        response = openai.ChatCompletion.create(
+                        # model="gpt-3.5-turbo",
+                        model="gpt-3.5-turbo-0301",
+                        messages=[
+                                {"role": "user", "content": msg},
+                                # {"role": "system", "content": "You are a helpful assistant."},
+                                # {"role": "user", "content": "Who won the world series in 2020?"},
+                                # {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+                                # {"role": "user", "content": "Where was it played?"}
+                            ]
+                        )
 
-            # print("messages", messages)
-            answ = response['choices'][0]['message']['content']
-            answ = answ.lstrip("\n")
-            print("answ", answ)
+                        # print("messages", messages)
+                        answ = response['choices'][0]['message']['content']
+                        answ = answ.lstrip("\n")
+                        print("answ", answ)
 
-            ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
-            ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
-                {'callnum': ApiPoll.callnum + 1})
-            User.query.filter(User.openid == openid).update({'num': usernum})
-            db.session.add(ask1)
-            db.session.commit()
-            
-            res = {
-                "resmsg": answ,
-                "num": usernum,
-                "code": 200
-            }
-            return res
+                        ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
+                        ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
+                            {'callnum': ApiPoll.callnum + 1})
+                        User.query.filter(User.openid == openid).update({'num': usernum})
+                        db.session.add(ask1)
+                        db.session.commit()
+                        
+                        res = {
+                            "resmsg": answ,
+                            "num": usernum,
+                            "code": 200
+                        }
+                        return res
+                    except:  # 两次尝试 
+                        # 因为有时候会遇到官方API的错误
+                        # error_message='Your access was terminated due to violation of our policies, please check your email for more information. 
+                        # If you believe this is in error and would like to appeal, please contact support@openai.com.' error_param=None error_type=access_terminated message='OpenAI API error received' 
+                        n+=1
+                        print("第一次请求API失败了，尝试第%s次"%str(n))
+                        response = openai.ChatCompletion.create(
+                        # model="gpt-3.5-turbo",
+                        model="gpt-3.5-turbo-0301",
+                        messages=[
+                                {"role": "user", "content": msg},
+                                # {"role": "system", "content": "You are a helpful assistant."},
+                                # {"role": "user", "content": "Who won the world series in 2020?"},
+                                # {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+                                # {"role": "user", "content": "Where was it played?"}
+                            ]
+                        )
+
+                        # print("messages", messages)
+                        answ = response['choices'][0]['message']['content']
+                        answ = answ.lstrip("\n")
+                        print("answ", answ)
+
+                        ask1 = AskHis(ask=msg, answ=answ, openid=user1.id)
+                        ApiPoll.query.filter(ApiPoll.apikey == api.apikey).update(
+                            {'callnum': ApiPoll.callnum + 1})
+                        User.query.filter(User.openid == openid).update({'num': usernum})
+                        db.session.add(ask1)
+                        db.session.commit()
+                        
+                        res = {
+                            "resmsg": answ,
+                            "num": usernum,
+                            "code": 200
+                        }
+                        return res
+
+            except:
+                errmsg = "chatgpt的官方API报错了，请重试"
+                print(errmsg)
+                res = {
+                    "resmsg": errmsg,
+                    "num": usernum+1,
+                    "code": 200
+                }
+                return res
         
         # 如果不是modetype==2 则会进入下边的==3的情况，因为有retur,所以modetype==2的时候，走不到下边的逻辑
 
