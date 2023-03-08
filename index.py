@@ -156,19 +156,15 @@ class ApiPoll(db.Model):
 def wordcheck():
     msg = request.json.get('msg')
     openid = request.json.get('openid')
-
     try:
-
-        stau = infocheck(msg,openid)
-        print("stau", stau)
-        if stau:
-
+        res = word_check_(msg, openid)
+        if res is True: #不敏感
+            return jsonify({'code':0})
+        else: # 敏感
             return jsonify({'code':1})
-        else:
-            return jsonify({'code': 0, 'msg': 'err'})
     except:
 
-        return jsonify({'code':0,'msg':'err'})
+        return jsonify({'code':1,'msg':'err'})
 
 
 def word_check_(text,openid):
@@ -762,15 +758,15 @@ def mess():
 
 
 
-    print("准备开始进行敏感词检测")
-    if word_check_(msg, openid) is False:
-        res = {
-            "resmsg": "内容包含敏感文字，我们都是社会主义的好公民，要保持积极正向，共建美好祖国。",
-            "num": usernum,
-            "code": 200
-        }
-        print("内容包含敏感文字，请重新编辑发送")
-        return res
+    # print("准备开始进行敏感词检测")
+    # if word_check_(msg, openid) is False:
+    #     res = {
+    #         "resmsg": "内容包含敏感文字，我们都是社会主义的好公民，要保持积极正向，共建美好祖国。",
+    #         "num": usernum,
+    #         "code": 200
+    #     }
+    #     print("内容包含敏感文字，请重新编辑发送")
+    #     return res
 
     try:
 
@@ -781,7 +777,7 @@ def mess():
             print("msg", msg)
             try:
                 n=0
-                while n<2:
+                while n<10:
                     try:
                         n+=1
                         response = openai.ChatCompletion.create(
