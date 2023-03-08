@@ -785,7 +785,6 @@ def mess():
 
     user1 = User.query.filter(User.openid == openid).first()
     usernum = user1.num - 1
-    # print("old_usernum", usernum)
     
     print("随机选择了api")
 
@@ -802,10 +801,10 @@ def mess():
 
 
     try:
-        usernum = usernum-1 #vip 多消耗一次机会
-        # print("new_usernum", usernum)
+        
 
         if modetype == 2:
+            usernum = usernum-1 #vip 多消耗一次机会
             print("modetype==2")
             # openai.api_key = "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"
             openai.api_key = api.apikey
