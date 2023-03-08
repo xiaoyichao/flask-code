@@ -785,7 +785,8 @@ def mess():
 
     user1 = User.query.filter(User.openid == openid).first()
     usernum = user1.num - 1
-
+    # print("old_usernum", usernum)
+    
     print("随机选择了api")
 
 
@@ -801,6 +802,8 @@ def mess():
 
 
     try:
+        usernum = usernum-1 #vip 多消耗一次机会
+        # print("new_usernum", usernum)
 
         if modetype == 2:
             print("modetype==2")
@@ -815,8 +818,8 @@ def mess():
                     try:
                         n += 1
                         response = openai.ChatCompletion.create(
-                            # model="gpt-3.5-turbo",
-                            model="gpt-3.5-turbo-0301",
+                            model="gpt-3.5-turbo",
+                            # model="gpt-3.5-turbo-0301",
                             messages=[
                                 {"role": "user", "content": msg},
                                 # {"role": "system", "content": "You are a helpful assistant."},
@@ -840,7 +843,7 @@ def mess():
 
                         res = {
                             "resmsg": answ,
-                            "num": usernum,
+                            "num": usernum, 
                             "code": 200
                         }
                         return res
@@ -851,8 +854,8 @@ def mess():
                         n += 1
                         print("第一次请求API失败了，尝试第%s次" % str(n))
                         response = openai.ChatCompletion.create(
-                            # model="gpt-3.5-turbo",
-                            model="gpt-3.5-turbo-0301",
+                            model="gpt-3.5-turbo",
+                            # model="gpt-3.5-turbo-0301",
                             messages=[
                                 {"role": "user", "content": msg},
                                 # {"role": "system", "content": "You are a helpful assistant."},
