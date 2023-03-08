@@ -47,4 +47,4 @@ pip install openai  --upgrade
 
 ## 如果报爬虫有问题
 就在终端执行这句
-pip3 install --upgrade revChatGPT
+pip install --upgrade revChatGPT
