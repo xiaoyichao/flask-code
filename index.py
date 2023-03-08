@@ -1,5 +1,5 @@
-from datetime import datetime, date,timedelta
-from flask import Flask, request, jsonify 
+from datetime import datetime, date, timedelta
+from flask import Flask, request, jsonify
 import requests
 import json
 from flask_sqlalchemy import SQLAlchemy
@@ -9,12 +9,40 @@ import random
 from revChatGPT.V1 import Chatbot
 import time
 import openai
+
 # from creat_bot import creat_new_bot
 
-account_dict = {'wolhtetjuywvb@eurokool.com': 'abc123456789', 'uvffqudbqob@eurokool.com': 'abc123456789', 'svakzkwcegq@eurokool.com': 'abc123456789', 'wyabuwztdcct@eurokool.com': 'abc123456789', 'qmqows@eurokool.com': 'abc123456789', 'lahuseman88@outlook.com': 'of75stFg8j', 'hp52477bgmw7027@163.com': 'XnwlHh5VwD', 'px303xgza2591@163.com': 'GMV1x4wtQC', 'oxqvp331ztx1@163.com': '2RUt5HOjbh', 'at10574llm37@163.com': 'LE4cy7hHQt', 'ijyvnc31uj72@163.com': '68s00wDGmV', 'sf7549vvvd9429@163.com': '3PXQrl4eEa', 'qdmcca89jt466@163.com': 'c618XMONr7', 'uyprjj68cb372@163.com': 'B3P21G878j', 'vi8715ewcu3894@163.com': 'N4v99fzTE4', 'gwclko009sa211@163.com': '29uQ60aFUi', 'ppsor13xvq33@163.com': 'z4yIqD2wQX', 'zy673rowg952@163.com': 'ZX2P8w9A2L', 'ol5092rxmn1381@163.com': 'T7SU1VVNoX', 'aapqp508udid12@163.com': '48aSapa33T', 'kwhaf497rru7@163.com': 'reG0TRUM38', 'yejiw31tnl3@163.com': 'rLKCWrLdGh', 'shrfm51brh36@163.com': 'jPx6PQD1s9', 'heail17ewu25@163.com': 'ho4l2A18MU', 'jb6963fdhv062@163.com': 'bQA2s51d9d', 'snjbc8672ytvs37@163.com': 'T10rLTGLC2', 'uozdb01bjl31@163.com': '6zB4lhgg8A', 'iy2373patc1753@163.com': '40g52K2rPf', 'bvpui74kyox04@163.com': 'hEHpWWCWwG', 'slqdi3170ncrg74@163.com': '3PrKE16NpZ', 'dsyqy18esd2@163.com': '4N1ZgWw5Wc', 'injimr95wy023@163.com': 'y6NlU7Ab10', 'jh8994hoyw8778@163.com': 'TPx6S0niJh', 'hllri02sape92@163.com': '10z1o1970a', 'oeixcv048nw06@163.com': 'doL0H0s6pa', 'hb93594chrn527@163.com': 'k4kyKbQ67n', 'ggzlm907nizp30@163.com': 'qx9XYs194p', 'kl19967dgak179@163.com': 's29s2ubPQz', 'zbmhv435rcky46@163.com': 'gp2bb5wWEc', 'ne87280hkrc3035@163.com': '3J72720xz2', 'lm845oyoa384@163.com': 'm55Vh3xXNb', 'shndcl35xb75@163.com': 'YEggHvB8KS', 'ug338xsxs865@163.com': '7E99b553PD', 'hi45728ahlm1616@163.com': '5gRLz2ckZ6', 'kaiucb434fc507@163.com': 'FqzVglS26E', 'rfcxn305gqkw6@163.com': 'N9xhzlq2xM', 'owcmn6032wjlg0@163.com': '0q7OEK5ebd', 'bedupj72vv90@163.com': 'i4nvjQ8Lh8', 'zt0834cbde585@163.com': 'r05a2vb3JX', 'ih7850ejso311@163.com': 'su057OmnIB', 'rhxtyh320kq29@163.com': 'g96YMnuuoa', 'ltbbby14sc643@163.com': 'plDg0kf3vU', 'sinttw48gq102@163.com': '3c1UV449u9', 'rz2532xmlh691@163.com': '29wrkq2XZh', 'nsbzg881ujv0@163.com': 'u50ynaVk4y', 'yi6899kipr246@163.com': 'q1t3uPDJpA'}
+account_dict = {'wolhtetjuywvb@eurokool.com': 'abc123456789', 'uvffqudbqob@eurokool.com': 'abc123456789',
+                'svakzkwcegq@eurokool.com': 'abc123456789', 'wyabuwztdcct@eurokool.com': 'abc123456789',
+                'qmqows@eurokool.com': 'abc123456789', 'lahuseman88@outlook.com': 'of75stFg8j',
+                'hp52477bgmw7027@163.com': 'XnwlHh5VwD', 'px303xgza2591@163.com': 'GMV1x4wtQC',
+                'oxqvp331ztx1@163.com': '2RUt5HOjbh', 'at10574llm37@163.com': 'LE4cy7hHQt',
+                'ijyvnc31uj72@163.com': '68s00wDGmV', 'sf7549vvvd9429@163.com': '3PXQrl4eEa',
+                'qdmcca89jt466@163.com': 'c618XMONr7', 'uyprjj68cb372@163.com': 'B3P21G878j',
+                'vi8715ewcu3894@163.com': 'N4v99fzTE4', 'gwclko009sa211@163.com': '29uQ60aFUi',
+                'ppsor13xvq33@163.com': 'z4yIqD2wQX', 'zy673rowg952@163.com': 'ZX2P8w9A2L',
+                'ol5092rxmn1381@163.com': 'T7SU1VVNoX', 'aapqp508udid12@163.com': '48aSapa33T',
+                'kwhaf497rru7@163.com': 'reG0TRUM38', 'yejiw31tnl3@163.com': 'rLKCWrLdGh',
+                'shrfm51brh36@163.com': 'jPx6PQD1s9', 'heail17ewu25@163.com': 'ho4l2A18MU',
+                'jb6963fdhv062@163.com': 'bQA2s51d9d', 'snjbc8672ytvs37@163.com': 'T10rLTGLC2',
+                'uozdb01bjl31@163.com': '6zB4lhgg8A', 'iy2373patc1753@163.com': '40g52K2rPf',
+                'bvpui74kyox04@163.com': 'hEHpWWCWwG', 'slqdi3170ncrg74@163.com': '3PrKE16NpZ',
+                'dsyqy18esd2@163.com': '4N1ZgWw5Wc', 'injimr95wy023@163.com': 'y6NlU7Ab10',
+                'jh8994hoyw8778@163.com': 'TPx6S0niJh', 'hllri02sape92@163.com': '10z1o1970a',
+                'oeixcv048nw06@163.com': 'doL0H0s6pa', 'hb93594chrn527@163.com': 'k4kyKbQ67n',
+                'ggzlm907nizp30@163.com': 'qx9XYs194p', 'kl19967dgak179@163.com': 's29s2ubPQz',
+                'zbmhv435rcky46@163.com': 'gp2bb5wWEc', 'ne87280hkrc3035@163.com': '3J72720xz2',
+                'lm845oyoa384@163.com': 'm55Vh3xXNb', 'shndcl35xb75@163.com': 'YEggHvB8KS',
+                'ug338xsxs865@163.com': '7E99b553PD', 'hi45728ahlm1616@163.com': '5gRLz2ckZ6',
+                'kaiucb434fc507@163.com': 'FqzVglS26E', 'rfcxn305gqkw6@163.com': 'N9xhzlq2xM',
+                'owcmn6032wjlg0@163.com': '0q7OEK5ebd', 'bedupj72vv90@163.com': 'i4nvjQ8Lh8',
+                'zt0834cbde585@163.com': 'r05a2vb3JX', 'ih7850ejso311@163.com': 'su057OmnIB',
+                'rhxtyh320kq29@163.com': 'g96YMnuuoa', 'ltbbby14sc643@163.com': 'plDg0kf3vU',
+                'sinttw48gq102@163.com': '3c1UV449u9', 'rz2532xmlh691@163.com': '29wrkq2XZh',
+                'nsbzg881ujv0@163.com': 'u50ynaVk4y', 'yi6899kipr246@163.com': 'q1t3uPDJpA'}
 
-print("账户总数量",len(account_dict))
-account_list = sorted(account_dict.items(),key=lambda item:item[1],reverse=True)
+print("账户总数量", len(account_dict))
+account_list = sorted(account_dict.items(), key=lambda item: item[1], reverse=True)
 
 all_account = set()
 used_account = set()
@@ -26,7 +54,6 @@ for info in account_list:
     password = info[1]
     all_account.add(account)
 
-
 app = Flask(__name__)
 
 # 基础项配置
@@ -36,11 +63,11 @@ APPID = 'wx03c9741b85f57a9b'
 # 小程序secr
 SECRET = 'e00a7350cbcec6abaa2c57980060811b'
 # 管理员id
-manageropenid = 'ophka5ORWZC6asTu2Frb5wI8VjO8'
+# manageropenid = 'ophka5ORWZC6asTu2Frb5wI8VjO8'
+manageropenid = ['ophka5ORWZC6asTu2Frb5wI8VjO8', 'ophka5A8IG2rGwzKYAOJSRgxrlJ0', 'ophka5ON1bWUpYugL4aARfGJTVbs']
 
 # 新注册免费次数
 newsignnum = 10
-
 
 # 数据库配置
 # # 用户名
@@ -62,25 +89,21 @@ db = SQLAlchemy(app)
 
 def get_bot(account, password):
     try_num = 0
-    while try_num<3:
+    while try_num < 3:
         try:
             chatbot = Chatbot(config={
                 "email": account,
                 "password": password,
-                })
-            try_num +=1
+            })
+            try_num += 1
             chatbot.clear_conversations()
             return chatbot
         except:
-            try_num +=1
-            print("第%s次尝试创建chatbot"%try_num)
-            print(account,password)
+            try_num += 1
+            print("第%s次尝试创建chatbot" % try_num)
+            print(account, password)
     return None
 
-   
-    
-       
-    
 
 # 数据表
 class BaseConfig(db.Model):
@@ -151,27 +174,28 @@ class ApiPoll(db.Model):
     check_time = db.Column(
         db.DateTime, default=datetime.now, onupdate=datetime.now)
 
+
 # 敏感词检测
-@app.route('/wordcheck',methods=['POST'])
+@app.route('/wordcheck', methods=['POST'])
 def wordcheck():
     msg = request.json.get('msg')
     openid = request.json.get('openid')
 
     try:
 
-        stau = infocheck(msg,openid)
+        stau = infocheck(msg, openid)
         print("stau", stau)
         if stau:
 
-            return jsonify({'code':1})
+            return jsonify({'code': 1})
         else:
             return jsonify({'code': 0, 'msg': 'err'})
     except:
 
-        return jsonify({'code':0,'msg':'err'})
+        return jsonify({'code': 0, 'msg': 'err'})
 
 
-def word_check_(text,openid):
+def word_check_(text, openid):
     try:
         getacctoken()
         acctoken = Adj.query.filter(Adj.id == 2).first().adjinfo
@@ -192,23 +216,24 @@ def word_check_(text,openid):
         # print("lev", lev)
         print("suggest", suggest, text)
         if suggest == "review" or suggest == "pass":
-        # if suggest == "pass":
+            # if suggest == "pass":
             return True
         else:
             return False
     except Exception as e:
         # getacctoken()
-        print('获取微信的敏感词接口失败',text)
+        print('获取微信的敏感词接口失败', text)
         # return jsonify('内容包含敏感文字，请重新编辑发送')
         return False
 
+
 # 微信内容安全检测
-def infocheck(text,openid):
+def infocheck(text, openid):
     for i in range(2):
-        res = word_check_(text,openid)
+        res = word_check_(text, openid)
         if res is True:
             return res
-        if i ==1:
+        if i == 1:
             return True
     return res
 
@@ -243,12 +268,14 @@ def getacctoken():
     return access_token_res
     if access_token_res.json().get('errcode'):
         raise 'AccessToken()'
-@app.route('/test',methods=['POST'])
+
+
+@app.route('/test', methods=['POST'])
 def test():
     text = request.json.get('msg')
     openid = request.json.get('openid')
-    a = infocheck(text,openid)
-    print("a ", a )
+    a = infocheck(text, openid)
+    print("a ", a)
     return str(a)
 
 
@@ -256,12 +283,14 @@ def test():
 def errout(err):
     errr = str(err)
     res = {
-            # 广告信息
-                "adj": '接口执行错误',
-                "code": 444,
-                "errinfo":errr
-            }
-    return  res
+        # 广告信息
+        "adj": '接口执行错误',
+        "code": 444,
+        "errinfo": errr
+    }
+    return res
+
+
 # api检测
 @app.route('/checkapi', methods=['POST'])
 def checkapi():
@@ -271,8 +300,9 @@ def checkapi():
     try:
 
         req = requests.post('https://api.openai.com/v1/completions',
-                            json={"prompt": '你好', "max_tokens": 1024, "model": "text-davinci-003-playground", "temperature": 0}, headers={
-                                'content-type': 'application/json', 'Authorization': 'Bearer ' + apikey})
+                            json={"prompt": '你好', "max_tokens": 1024, "model": "text-davinci-003-playground",
+                                  "temperature": 0}, headers={
+                'content-type': 'application/json', 'Authorization': 'Bearer ' + apikey})
         if req.status_code == 200:
             ApiPoll.query.filter(
                 ApiPoll.apikey == apikey).update({'statu': True})
@@ -294,7 +324,6 @@ def checkapi():
 
                 "code": 200
             }
-            print(res)
             return res
 
         else:
@@ -310,6 +339,7 @@ def checkapi():
     except KeyError as e:
 
         return errout('openai官方请求错误，请稍后重试')
+
 
 # 增加api
 
@@ -343,8 +373,8 @@ def editapi():
 
             "code": 200
         }
-        print(res)
         return res
+
 
 # 删除api
 
@@ -374,7 +404,6 @@ def delkey():
 
             "code": 200
         }
-        print(res)
         return res
 
     else:
@@ -402,7 +431,6 @@ def getapilist():
 
         "code": 200
     }
-    print(res)
     return res
 
 
@@ -519,15 +547,15 @@ def setadj():
     CODE = request.json.get('code')
     getadjinfo = request.json.get('adjinfo')
     print('code', CODE)
-    url = 'https://api.weixin.qq.com/sns/jscode2session?appid='+APPID + \
-        '&secret='+SECRET+'&js_code='+CODE+'&grant_type=authorization_code'
+    url = 'https://api.weixin.qq.com/sns/jscode2session?appid=' + APPID + \
+          '&secret=' + SECRET + '&js_code=' + CODE + '&grant_type=authorization_code'
     print(url, CODE)
     try:
         req = requests.get(url)
         try:
             getres = json.loads(req.text)
             openid = getres['openid']
-            if openid == manageropenid:
+            if openid in manageropenid:
                 print(getadjinfo)
                 # adj1 = Adj(adjinfo =getadjinfo )
                 adj0 = Adj.query.filter()
@@ -555,6 +583,7 @@ def setadj():
 
         return errout('微信认证连接失败')
 
+
 # 管理员充值
 
 
@@ -564,15 +593,15 @@ def manaaddnum():
     CODE = request.json.get('code')
     num = request.json.get('num')
     print('code', CODE)
-    url = 'https://api.weixin.qq.com/sns/jscode2session?appid='+APPID + \
-        '&secret='+SECRET+'&js_code='+CODE+'&grant_type=authorization_code'
+    url = 'https://api.weixin.qq.com/sns/jscode2session?appid=' + APPID + \
+          '&secret=' + SECRET + '&js_code=' + CODE + '&grant_type=authorization_code'
     print(url, CODE)
     try:
         req = requests.get(url)
         try:
             getres = json.loads(req.text)
             openid = getres['openid']
-            if openid == manageropenid:
+            if openid in manageropenid:
 
                 user1 = User.query.filter(User.openid == userid).first()
                 endnum = user1.num + int(num)
@@ -585,7 +614,7 @@ def manaaddnum():
                 db.session.commit()
                 a = User.query.filter(User.openid == userid).first()
                 res = {
-                    "msg": '充值成功。现有数量：'+str(a.num),
+                    "msg": '充值成功。现有数量：' + str(a.num),
                     "num": a.num,
                     "code": 200
                 }
@@ -598,6 +627,8 @@ def manaaddnum():
     except KeyError as e:
 
         return errout('微信认证连接失败')
+
+
 # 每日免费次数
 
 
@@ -622,7 +653,7 @@ def addnum():
     baseconfingset = BaseConfig.query.filter().first()
     videonum = baseconfingset.videonum
     videomax = baseconfingset.videomax
-    # sharenum = baseconfingset.videonum  原内容  videonum 改为 sharenum  
+    # sharenum = baseconfingset.videonum  原内容  videonum 改为 sharenum
     sharenum = baseconfingset.sharenum
     sharemax = baseconfingset.sharemax
     type = request.json.get('type')
@@ -634,7 +665,7 @@ def addnum():
                             Log.openid == user1.id, Log.type == 'v').count()
     print(nums, numv)
 
-    if numv >= videomax and numv+videomax != 0:
+    if numv >= videomax and numv + videomax != 0:
         res = {
             "msg": '本日看视频领次数活动次数已用尽，不再增加次数',
 
@@ -644,7 +675,7 @@ def addnum():
         return res
     try:
         if type == 'v':
-            if numv >= videomax and numv+videomax != 0:
+            if numv >= videomax and numv + videomax != 0:
                 res = {
                     "msg": '本日看视频领次数活动次数已用尽，不再增加次数',
 
@@ -657,7 +688,7 @@ def addnum():
             User.query.filter(User.openid == openid).update({'num': endnum})
             log1 = Log(addnum=videonum, type='v', openid=user1.id)
         if type == 's':
-            if nums >= sharemax and numv+sharemax != 0:
+            if nums >= sharemax and numv + sharemax != 0:
                 res = {
                     "msg": '本日分享活动次数已用尽，不再增加次数',
 
@@ -676,7 +707,7 @@ def addnum():
         db.session.commit()
         a = User.query.filter(User.openid == openid).first()
         res = {
-            "msg": '任务完成，现有数量：'+str(a.num),
+            "msg": '任务完成，现有数量：' + str(a.num),
             "num": a.num,
             "code": 200
         }
@@ -691,8 +722,8 @@ def addnum():
 def LOGIN():
     CODE = request.json.get('code')
     print('code', CODE)
-    url = 'https://api.weixin.qq.com/sns/jscode2session?appid='+APPID + \
-        '&secret='+SECRET+'&js_code='+CODE+'&grant_type=authorization_code'
+    url = 'https://api.weixin.qq.com/sns/jscode2session?appid=' + APPID + \
+          '&secret=' + SECRET + '&js_code=' + CODE + '&grant_type=authorization_code'
     print(url, CODE)
     try:
         req = requests.get(url)
@@ -715,7 +746,7 @@ def LOGIN():
                     return res
 
                 else:
-                    print('已注册')
+                    # print('已注册')
                     useradd = User(openid=openid, num=newsignnum)
                     db.session.add(useradd)
                     db.session.commit()
@@ -748,7 +779,7 @@ def mess():
     print("接收到微信的请求")
     api1 = ApiPoll.query.filter(
         ApiPoll.statu == True, ApiPoll.checkstatu == True).all()
-    api = random.choice(api1)# 用来选择api_key
+    api = random.choice(api1)  # 用来选择api_key
 
     msg = request.json.get('msg')
     # maxtoken = request.json.get('maxtoken')
@@ -759,8 +790,6 @@ def mess():
     usernum = user1.num - 1
 
     print("随机选择了api")
-
-
 
     print("准备开始进行敏感词检测")
     if word_check_(msg, openid) is False:
@@ -774,20 +803,20 @@ def mess():
 
     try:
 
-        if modetype==2:
+        if modetype == 2:
             print("modetype==2")
             # openai.api_key = "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"
             openai.api_key = api.apikey
             print("msg", msg)
             try:
-                n=0
-                while n<2:
+                n = 0
+                while n < 2:
                     try:
-                        n+=1
+                        n += 1
                         response = openai.ChatCompletion.create(
-                        # model="gpt-3.5-turbo",
-                        model="gpt-3.5-turbo-0301",
-                        messages=[
+                            # model="gpt-3.5-turbo",
+                            model="gpt-3.5-turbo-0301",
+                            messages=[
                                 {"role": "user", "content": msg},
                                 # {"role": "system", "content": "You are a helpful assistant."},
                                 # {"role": "user", "content": "Who won the world series in 2020?"},
@@ -807,23 +836,23 @@ def mess():
                         User.query.filter(User.openid == openid).update({'num': usernum})
                         db.session.add(ask1)
                         db.session.commit()
-                        
+
                         res = {
                             "resmsg": answ,
                             "num": usernum,
                             "code": 200
                         }
                         return res
-                    except:  # 两次尝试 
+                    except:  # 两次尝试
                         # 因为有时候会遇到官方API的错误
-                        # error_message='Your access was terminated due to violation of our policies, please check your email for more information. 
-                        # If you believe this is in error and would like to appeal, please contact support@openai.com.' error_param=None error_type=access_terminated message='OpenAI API error received' 
-                        n+=1
-                        print("第一次请求API失败了，尝试第%s次"%str(n))
+                        # error_message='Your access was terminated due to violation of our policies, please check your email for more information.
+                        # If you believe this is in error and would like to appeal, please contact support@openai.com.' error_param=None error_type=access_terminated message='OpenAI API error received'
+                        n += 1
+                        print("第一次请求API失败了，尝试第%s次" % str(n))
                         response = openai.ChatCompletion.create(
-                        # model="gpt-3.5-turbo",
-                        model="gpt-3.5-turbo-0301",
-                        messages=[
+                            # model="gpt-3.5-turbo",
+                            model="gpt-3.5-turbo-0301",
+                            messages=[
                                 {"role": "user", "content": msg},
                                 # {"role": "system", "content": "You are a helpful assistant."},
                                 # {"role": "user", "content": "Who won the world series in 2020?"},
@@ -843,7 +872,7 @@ def mess():
                         User.query.filter(User.openid == openid).update({'num': usernum})
                         db.session.add(ask1)
                         db.session.commit()
-                        
+
                         res = {
                             "resmsg": answ,
                             "num": usernum,
@@ -856,11 +885,11 @@ def mess():
                 print(errmsg)
                 res = {
                     "resmsg": errmsg,
-                    "num": usernum+1,
+                    "num": usernum + 1,
                     "code": 200
                 }
                 return res
-        
+
         # 如果不是modetype==2 则会进入下边的==3的情况，因为有retur,所以modetype==2的时候，走不到下边的逻辑
 
         print("准备开始请求chatgpt")
@@ -876,7 +905,7 @@ def mess():
 
         print(last_time < 120)
         print(openid in openid_30s_dict)
-        if last_time<120 and openid in openid_30s_dict:
+        if last_time < 120 and openid in openid_30s_dict:
             chatbot = openid_30s_dict[openid]
             print("使用了自己30秒前的bot", chatbot)
         else:
@@ -888,7 +917,6 @@ def mess():
                     used_account.remove(old_account)
             if openid in onlie_time_dict:
                 onlie_time_dict.pop(openid)
-            
 
             # 创建新的chatbot
 
@@ -900,71 +928,68 @@ def mess():
             tmp_bots = list(all_account - used_account)
             if len(tmp_bots) < 2:
                 used_account = set()
-            if len(tmp_bots)>0:
+            if len(tmp_bots) > 0:
                 print("有可以使用的bot")
                 account = random.choice(tmp_bots)
                 password = account_dict[account]
-                
+
                 chatbot = get_bot(account, password)
                 print("随机选择chatbot, done")
-                
+
                 if chatbot is None:
                     print("创建bot失败，尝试其他账户")
                     for i in range(3):
                         account = random.choice(tmp_bots)
                         password = account_dict[account]
-                        chatbot = get_bot(account, password)  
-                        
-                        if chatbot is not None:
+                        chatbot = get_bot(account, password)
 
+                        if chatbot is not None:
                             break
 
                     errmsg = "chatgpt的官网登录不上了，请稍后重试"
                     print(errmsg)
                     res = {
                         "resmsg": errmsg,
-                        "num": usernum+1,
+                        "num": usernum + 1,
                         "code": 200
                     }
                     return res
                 else:
                     used_account.add(account)
                     print("used_account", used_account)
-                    
+
             else:
                 i = 0
                 while i < 5:
                     time.sleep(0.5)
                     print("开始重试")
                     tmp_bots = list(all_account - used_account)
-                    i+=1
-                    if len(tmp_bots)>0:
+                    i += 1
+                    if len(tmp_bots) > 0:
                         account = random.choice(tmp_bots)
                         password = account_dict[account]
                         chatbot = get_bot(account, password)
                         if chatbot is not None:
                             print("重试后，选择了 bot")
                             used_account.add(account)
-                            
-
 
                 errmsg = "太多用户使用，导致账号不足"
                 print(errmsg)
                 res = {
                     "resmsg": errmsg,
-                    "num": usernum+1,
+                    "num": usernum + 1,
                     "code": 200
                 }
                 return res
 
             openid_30s_dict[openid] = chatbot
             onlie_time_dict[openid] = int(time.time())
-        try:    
+        try:
             conversations = chatbot.get_conversations()
-            if len(conversations)>0:
+            if len(conversations) > 0:
                 conversation = conversations[0]["id"]
                 try:
-                    for data in chatbot.ask(prompt=prompt,conversation_id=conversation):
+                    for data in chatbot.ask(prompt=prompt, conversation_id=conversation):
                         response = data["message"]
                 except:
                     # {'detail': 'Something went wrong, please try reloading the conversation.'}
@@ -974,10 +999,10 @@ def mess():
             else:
                 for data in chatbot.ask(prompt=prompt):
                     response = data["message"]
-            print("请求chatgpt成功") 
-            print("chatgpt response", response)    
+            print("请求chatgpt成功")
+            print("chatgpt response", response)
         except:
-            return errout("创建或请求chatgpt数据失败，请稍后再试") 
+            return errout("创建或请求chatgpt数据失败，请稍后再试")
 
         if response != "":
 
@@ -1002,10 +1027,10 @@ def mess():
     except KeyError as e:
         return errout('openai官方请求错误，请稍后重试')
 
+
 # 获取运营信息
 @app.route('/userinfo', methods=['GET'])
 def userinfo():
-
     allusernum = User.query.filter().count()
     dayadduser = User.query.filter(User.create_time > date.today()).count()
     allanswnum = AskHis.query.filter().count()
@@ -1019,6 +1044,7 @@ def userinfo():
     }
     print(res)
     return res
+
 
 if __name__ == '__main__':
     app.run(debug=True)
