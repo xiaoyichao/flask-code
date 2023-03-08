@@ -43,3 +43,8 @@ account_dict = {'账号1': '密码', '账号2': '密码'}  这个位置是你的
 ## 如果报错openai找不到
 就在终端执行这句
 pip install openai  --upgrade
+
+
+## 如果报爬虫有问题
+就在终端执行这句
+pip3 install --upgrade revChatGPT
