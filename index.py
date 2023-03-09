@@ -9,6 +9,7 @@ import random
 from revChatGPT.V1 import Chatbot
 import time
 import openai
+from dateutil.relativedelta import relativedelta
 
 # from creat_bot import creat_new_bot
 
@@ -183,13 +184,13 @@ def wordcheck():
     try:
 
         res = word_check_(msg, openid)
-        if res is True: #不敏感
-            return jsonify({'code':0})
-        else: # 敏感
-            return jsonify({'code':1})
+        if res is True:  # 不敏感
+            return jsonify({'code': 0})
+        else:  # 敏感
+            return jsonify({'code': 1})
     except:
 
-        return jsonify({'code':1,'msg':'err'})
+        return jsonify({'code': 1, 'msg': 'err'})
 
 
 def word_check_(text, openid):
@@ -601,7 +602,10 @@ def manaaddnum():
             if openid in manageropenid:
 
                 user1 = User.query.filter(User.openid == userid).first()
-                endnum = user1.num + int(num)
+                if int(num) == 9999:
+                    endnum = 9999
+                else:
+                    endnum = user1.num + int(num)
                 print(endnum)
                 User.query.filter(User.openid == userid).update(
                     {'num': endnum})
@@ -633,15 +637,24 @@ def manaaddnum():
 def everydaynum():
     everynum = BaseConfig.query.filter().first().everynum
     print(everynum)
-    user = User.query.filter(User.num < everynum).update({"num": everynum})
-    print(user)
-    db.session.commit()
-    res = {
+    user1 = User.query.filter(User.openid == userid).first()
+    if user1.num != 9999:
+        user = User.query.filter(User.num < everynum).update({"num": everynum})
+        print(user)
+        db.session.commit()
+        res = {
 
-        "num": '免费次数更新数量' + str(user),
-        "code": 200
-    }
-    return res
+            "num": '免费次数更新数量' + str(user),
+            "code": 200
+        }
+        return res
+    else:
+        res = {
+
+            "num": '免费次数更新数量' + str(user1.num),
+            "code": 200
+        }
+        return res
 
 
 # 用户次数增加
@@ -656,62 +669,71 @@ def addnum():
     type = request.json.get('type')
     openid = request.json.get('openid')
     user1 = User.query.filter(User.openid == openid).first()
-    nums = Log.query.filter(Log.time > date.today(),
-                            Log.openid == user1.id, Log.type == 's').count()
-    numv = Log.query.filter(Log.time > date.today(),
-                            Log.openid == user1.id, Log.type == 'v').count()
-    print(nums, numv)
+    if user1.num != 9999:
 
-    if numv >= videomax and numv + videomax != 0:
+        nums = Log.query.filter(Log.time > date.today(),
+                                Log.openid == user1.id, Log.type == 's').count()
+        numv = Log.query.filter(Log.time > date.today(),
+                                Log.openid == user1.id, Log.type == 'v').count()
+        print(nums, numv)
+
+        if numv >= videomax and numv + videomax != 0:
+            res = {
+                "msg": '本日看视频领次数活动次数已用尽，不再增加次数',
+
+                "code": 201
+            }
+
+            return res
+        try:
+            if type == 'v':
+                if numv >= videomax and numv + videomax != 0:
+                    res = {
+                        "msg": '本日看视频领次数活动次数已用尽，不再增加次数',
+
+                        "code": 201
+                    }
+
+                    return res
+                endnum = user1.num + videonum
+                print(endnum)
+                User.query.filter(User.openid == openid).update({'num': endnum})
+                log1 = Log(addnum=videonum, type='v', openid=user1.id)
+            if type == 's':
+                if nums >= sharemax and numv + sharemax != 0:
+                    res = {
+                        "msg": '本日分享活动次数已用尽，不再增加次数',
+
+                        "code": 201
+                    }
+
+                    return res
+
+                endnum = user1.num + sharenum
+                print(endnum)
+                User.query.filter(User.openid == openid).update({'num': endnum})
+
+                log1 = Log(addnum=sharenum, type='s', openid=user1.id)
+
+            db.session.add(log1)
+            db.session.commit()
+            a = User.query.filter(User.openid == openid).first()
+            res = {
+                "msg": '任务完成，现有数量：' + str(a.num),
+                "num": a.num,
+                "code": 200
+            }
+
+            return res
+        except KeyError as e:
+            return errout('次数增加故障，请联系管理员')
+    else:
         res = {
-            "msg": '本日看视频领次数活动次数已用尽，不再增加次数',
 
-            "code": 201
-        }
-
-        return res
-    try:
-        if type == 'v':
-            if numv >= videomax and numv + videomax != 0:
-                res = {
-                    "msg": '本日看视频领次数活动次数已用尽，不再增加次数',
-
-                    "code": 201
-                }
-
-                return res
-            endnum = user1.num + videonum
-            print(endnum)
-            User.query.filter(User.openid == openid).update({'num': endnum})
-            log1 = Log(addnum=videonum, type='v', openid=user1.id)
-        if type == 's':
-            if nums >= sharemax and numv + sharemax != 0:
-                res = {
-                    "msg": '本日分享活动次数已用尽，不再增加次数',
-
-                    "code": 201
-                }
-
-                return res
-
-            endnum = user1.num + sharenum
-            print(endnum)
-            User.query.filter(User.openid == openid).update({'num': endnum})
-
-            log1 = Log(addnum=sharenum, type='s', openid=user1.id)
-
-        db.session.add(log1)
-        db.session.commit()
-        a = User.query.filter(User.openid == openid).first()
-        res = {
-            "msg": '任务完成，现有数量：' + str(a.num),
-            "num": a.num,
+            "num": '不在增加会员次数' + str(user1.num),
             "code": 200
         }
-
         return res
-    except KeyError as e:
-        return errout('次数增加故障，请联系管理员')
 
 
 # 微信code获取openid
@@ -785,9 +807,9 @@ def mess():
 
     user1 = User.query.filter(User.openid == openid).first()
     usernum = user1.num - 1
-    
-    print("随机选择了api")
+    # print("old_usernum", usernum)
 
+    print("随机选择了api")
 
     # print("准备开始进行敏感词检测")
     # if word_check_(msg, openid) is False:
@@ -799,20 +821,29 @@ def mess():
     #     print("内容包含敏感文字，请重新编辑发送")
     #     return res
 
-
     try:
-        
+        if user1.num == 9999:
+            if (datetime.now() - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S") > str(user1.update_time):
+                usernum = 0
+            else:
+                usernum = 9999
 
         if modetype == 2:
-            usernum = usernum-1 #vip 多消耗一次机会
             print("modetype==2")
+            if user1.num == 9999:
+                if (datetime.now() - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S") > str(user1.update_time):
+                    usernum = 0
+                else:
+                    usernum = 9999
+            else:
+                usernum = usernum - 1  # vip 多消耗一次机会
             # openai.api_key = "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"
             openai.api_key = api.apikey
             print("msg", msg)
             try:
 
-                n=0
-                while n<10:
+                n = 0
+                while n < 10:
 
                     try:
                         n += 1
@@ -842,7 +873,7 @@ def mess():
 
                         res = {
                             "resmsg": answ,
-                            "num": usernum, 
+                            "num": usernum,
                             "code": 200
                         }
                         return res
@@ -884,13 +915,22 @@ def mess():
                         return res
 
             except:
-                errmsg = "chatgpt的官方API报错了，请重试"
-                print(errmsg)
-                res = {
-                    "resmsg": errmsg,
-                    "num": usernum + 1,
-                    "code": 200
-                }
+                if user1.num != 9999:
+                    errmsg = "chatgpt的官方API报错了，请重试"
+                    print(errmsg)
+                    res = {
+                        "resmsg": errmsg,
+                        "num": usernum + 1,
+                        "code": 200
+                    }
+                else:
+                    errmsg = "chatgpt的官方API报错了，请重试"
+                    print(errmsg)
+                    res = {
+                        "resmsg": errmsg,
+                        "num": usernum,
+                        "code": 200
+                    }
                 return res
 
         # 如果不是modetype==2 则会进入下边的==3的情况，因为有retur,所以modetype==2的时候，走不到下边的逻辑
@@ -951,11 +991,18 @@ def mess():
 
                     errmsg = "chatgpt的官网登录不上了，请稍后重试"
                     print(errmsg)
-                    res = {
-                        "resmsg": errmsg,
-                        "num": usernum + 1,
-                        "code": 200
-                    }
+                    if user1.num != 9999:
+                        res = {
+                            "resmsg": errmsg,
+                            "num": usernum + 1,
+                            "code": 200
+                        }
+                    else:
+                        res = {
+                            "resmsg": errmsg,
+                            "num": usernum,
+                            "code": 200
+                        }
                     return res
                 else:
                     used_account.add(account)
@@ -978,11 +1025,18 @@ def mess():
 
                 errmsg = "太多用户使用，导致账号不足"
                 print(errmsg)
-                res = {
-                    "resmsg": errmsg,
-                    "num": usernum + 1,
-                    "code": 200
-                }
+                if user1.num != 9999:
+                    res = {
+                        "resmsg": errmsg,
+                        "num": usernum + 1,
+                        "code": 200
+                    }
+                else:
+                    res = {
+                        "resmsg": errmsg,
+                        "num": usernum,
+                        "code": 200
+                    }
                 return res
 
             openid_30s_dict[openid] = chatbot
