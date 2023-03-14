@@ -131,6 +131,7 @@ class User(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
     update_time = db.Column(
         db.DateTime, default=datetime.now, onupdate=datetime.now)
+    vip_time = db.Column(db.String(1024))
 
 
 class AskHis(db.Model):
@@ -607,9 +608,9 @@ def manaaddnum():
                 else:
                     endnum = user1.num + int(num)
                 print(endnum)
+                User.query.filter(User.openid == userid).update({'num': endnum})
                 User.query.filter(User.openid == userid).update(
-                    {'num': endnum})
-                # db.session.add(adj1)
+                    {'vip_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
                 log1 = Log(addnum=num, type='m', openid=user1.id)
                 db.session.add(log1)
                 db.session.commit()
@@ -823,7 +824,7 @@ def mess():
 
     try:
         if user1.num == 9999:
-            if (datetime.now() - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S") > str(user1.update_time):
+            if (datetime.now() - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S") > str(user1.vip_time):
                 usernum = 0
             else:
                 usernum = 9999
@@ -831,7 +832,7 @@ def mess():
         if modetype == 2:
             print("modetype==2")
             if user1.num == 9999:
-                if (datetime.now() - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S") > str(user1.update_time):
+                if (datetime.now() - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S") > str(user1.vip_time):
                     usernum = 0
                 else:
                     usernum = 9999
